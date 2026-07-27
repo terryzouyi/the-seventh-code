@@ -2581,6 +2581,29 @@ button:disabled {
   color: var(--copy-soft);
 }
 
+.playback-status > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.playback-status small {
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+.playback-rule {
+  margin: 0;
+  padding: 8px 14px 10px;
+  border-top: 1px solid rgba(143, 185, 164, 0.12);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
 .waveform-canvas {
   height: clamp(140px, 16vw, 190px);
 }
@@ -3188,6 +3211,14 @@ button:disabled {
     font-size: 9px;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .playback-status small {
+    font-size: 7px;
+  }
+
+  .playback-rule {
+    font-size: 8px;
   }
 
   .waveform-tools > div:last-child {

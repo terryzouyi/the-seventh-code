@@ -63,8 +63,10 @@ test("contains seven playable chapters, accessible clues, and local progress", a
 
   assert.match(component, /localStorage/);
   assert.match(component, /AudioContext/);
-  assert.match(component, /speechSynthesis/);
+  assert.doesNotMatch(component, /speechSynthesis|SpeechSynthesisUtterance/);
   assert.match(component, /VOICE_PROFILES/);
+  assert.match(component, /VOICE_CLIPS/);
+  assert.match(component, /new Audio\(`audio\/voices\//);
   assert.match(component, /LISTENER_VOICE_LINES/);
   assert.match(component, /声纹字幕/);
   assert.match(component, /第一次叫出你的名字/);
@@ -126,6 +128,8 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /点击黄色高亮/);
   assert.match(component, /页面中的黄色高亮区域就是当前可点击位置/);
   assert.match(component, /打开提示/);
+  assert.match(component, /任意新试听都会先停止上一段/);
+  assert.match(component, /下一章不会自动插播/);
   assert.match(component, /K4 → M1 → R7 → B2 → Q5 → D8 → H3/);
   assert.doesNotMatch(component, /voiceTexture/);
   assert.doesNotMatch(component, /getUserMedia|mediaDevices|\.loop\s*=\s*true/);
@@ -157,6 +161,12 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 
   await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));
+  await access(
+    new URL("../public/audio/voices/father-note.mp3", import.meta.url),
+  );
+  await access(
+    new URL("../public/audio/voices/ending-complete.mp3", import.meta.url),
+  );
   await access(new URL("../剧本设定.md", import.meta.url));
   await access(root);
 });
