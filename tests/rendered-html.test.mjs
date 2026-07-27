@@ -69,6 +69,11 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /声纹字幕/);
   assert.match(component, /第一次叫出你的名字/);
   assert.match(component, /小默，你又把最后一个音唱低了/);
+  assert.match(component, /不要一次选完/);
+  assert.match(component, /当前只处理第/);
+  assert.match(component, /证据来源/);
+  assert.match(component, /因果链已完成，进入发布决定/);
+  assert.doesNotMatch(component, /FINAL_FACTS/);
   assert.match(component, /canvas/);
   assert.match(component, /全文字辅助/);
   assert.match(component, /监听者 02/);
@@ -135,6 +140,9 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(css, /@keyframes guide-target-pulse/);
   assert.match(css, /\.live-voice-cue/);
   assert.match(css, /@keyframes voice-print-pulse/);
+  assert.match(css, /\.conclusion-builder/);
+  assert.match(css, /\.chain-evidence/);
+  assert.match(css, /\.chain-options/);
   assert.match(css, /\.dock-locate-button/);
   assert.match(packageJson, /"name": "the-seventh-code"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);

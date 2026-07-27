@@ -365,17 +365,109 @@ const LISTENER_VOICE_LINES = [
   "最后一段，不要播放。",
 ];
 
-const FINAL_FACTS = [
-  { id: "locked", text: "唐肃因母带纠纷锁住乔岚", canonical: true },
-  { id: "delay", text: "唐肃等待非法导出，延误断电", canonical: true },
-  { id: "relay", text: "陈渡违规旁路火警继电器", canonical: true },
-  { id: "edited", text: "听证录音被剪辑并错置说话人", canonical: true },
-  { id: "child", text: "陈默当晚在场，儿童声音也被删除", canonical: true },
-  { id: "stolen", text: "旋律和六次敲击被唐肃用于新作品", canonical: true },
-  { id: "silence", text: "陈渡保留证据，却沉默了十四年", canonical: true },
-  { id: "planned", text: "陈渡与唐肃共同策划了火灾", canonical: false },
-  { id: "ghost", text: "第二监听者是乔岚留下的幽灵", canonical: false },
-];
+const FINAL_CHAIN_STEPS = [
+  {
+    id: "locked",
+    label: "01 / 锁门",
+    question: "乔岚为什么没能离开 B 棚？",
+    source: "第 07 章 · K4 / 23:15:08.214",
+    evidence: "还原片段中，唐肃说：“锁上 B 棚。她拿不到母带，就会签。”",
+    wrong:
+      "录音只证明唐肃下达了锁门命令，没有证据表明陈渡参与策划。",
+    choices: [
+      { id: "locked", text: "唐肃因母带纠纷下令锁住乔岚", correct: true },
+      { id: "planned", text: "陈渡与唐肃共同策划锁门和火灾", correct: false },
+    ],
+  },
+  {
+    id: "delay",
+    label: "02 / 断电",
+    question: "机架冒烟后，为什么没有立刻断总闸？",
+    source: "第 07 章 · M1 → R7",
+    evidence:
+      "陈渡喊“断总闸”后，唐肃回答：“文件没写完。谁都别动电源。”",
+    wrong:
+      "片段里没有门禁故障；阻止断电的是一个明确的人和一项未完成的导出。",
+    choices: [
+      { id: "delay", text: "唐肃为了等待非法导出，阻止立即断电", correct: true },
+      { id: "fault", text: "机房门禁故障，导致无人能接近总闸", correct: false },
+    ],
+  },
+  {
+    id: "relay",
+    label: "03 / 警报",
+    question: "火警继电器为什么从 22:50 起同时消失？",
+    source: "第 06 章 · 三轨时间码",
+    evidence:
+      "三条轨道在 22:50 后同时变为 0/3 次继电器声；陈渡承认：“我知道流程不允许……我还是按了。”",
+    wrong:
+      "如果是自然故障，不会同时留下 BYPASS_40M 字段和陈渡的操作证词。",
+    choices: [
+      { id: "relay", text: "陈渡违规旁路了火警继电器", correct: true },
+      { id: "malfunction", text: "火警系统因机架过热自然损坏", correct: false },
+    ],
+  },
+  {
+    id: "edited",
+    label: "04 / 剪辑",
+    question: "官方副本为什么把“先别开门”归给了陈渡？",
+    source: "第 04 章 · 00:42.118 剪口",
+    evidence:
+      "句中底噪从控制室 61 Hz 跳到机房 50 Hz；前半句与唐肃的控制室样本一致。",
+    wrong:
+      "同一句中出现两个房间指纹，说明它不是单纯的音色相似，而是被拼接过。",
+    choices: [
+      { id: "edited", text: "听证录音被剪辑，并错置了说话人", correct: true },
+      { id: "similar", text: "两人声音相似，记录人员只是听错了", correct: false },
+    ],
+  },
+  {
+    id: "child",
+    label: "05 / 缺席者",
+    question: "官方现场名单还删除了谁？",
+    source: "第 03—04 章 · 右声道 / 被删尾句",
+    evidence:
+      "右声道有孩子数到六；另一段里陈渡喊：“小默？你怎么出来了？”",
+    wrong:
+      "儿童声音在两份独立录音中连续出现，并被现场人物直接叫出名字。",
+    choices: [
+      { id: "child", text: "陈默当晚在场，他的童声也被删除", correct: true },
+      { id: "sample", text: "童声只是导出工程中的广告采样", correct: false },
+    ],
+  },
+  {
+    id: "stolen",
+    label: "06 / 作品",
+    question: "十四年后的获奖作品使用了什么原始材料？",
+    source: "第 05 章 · 0.82× / -3 半音",
+    evidence:
+      "旋律对齐后误差仅 0.8%；六次打击与 B 棚红门瞬态相似度 96%。",
+    wrong:
+      "重新演奏木鱼的相似度只有 41%，无法解释完全相同的六次间距与门板尾响。",
+    choices: [
+      {
+        id: "stolen",
+        text: "唐肃盗用乔岚旋律，并把求救敲击做成鼓点",
+        correct: true,
+      },
+      { id: "replayed", text: "旋律合法重写，鼓点是后来重录的木鱼", correct: false },
+    ],
+  },
+  {
+    id: "silence",
+    label: "07 / 沉默",
+    question: "陈渡在事故后留下了怎样的责任？",
+    source: "工程创建者 · CHEN_DU / 保存时间 2026.07.17",
+    evidence:
+      "他保存了完整工程和旁路证词，却直到十四年后仍没有亲口公开；工程最终留给陈默。",
+    wrong:
+      "当前工程本身证明证据没有被彻底销毁；但保存它也不能抵消十四年的沉默。",
+    choices: [
+      { id: "silence", text: "陈渡保留证据，却沉默了十四年", correct: true },
+      { id: "destroyed", text: "陈渡销毁全部原始证据，完全站在唐肃一边", correct: false },
+    ],
+  },
+] as const;
 
 const ENDINGS: Record<
   EndingId,
@@ -2831,22 +2923,34 @@ function Finale({
     }
   };
 
-  const verifyFacts = () => {
-    const canonical = FINAL_FACTS.filter((item) => item.canonical).map(
-      (item) => item.id,
-    );
-    const correct =
-      facts.length === canonical.length &&
-      canonical.every((id) => facts.includes(id));
-    if (correct) {
-      setConclusionSolved(true);
-      setMessage("");
-      playFinal("listener-final");
-    } else {
+  const currentChainStep =
+    FINAL_CHAIN_STEPS[
+      Math.min(facts.length, FINAL_CHAIN_STEPS.length - 1)
+    ];
+  const chainReady = facts.length === FINAL_CHAIN_STEPS.length;
+
+  const chooseChainFact = (choice: {
+    id: string;
+    text: string;
+    correct: boolean;
+  }) => {
+    if (choice.correct) {
+      const nextCount = facts.length + 1;
+      setFacts((items) => [...items, currentChainStep.id]);
       setMessage(
-        "这个版本仍让某个人从录音里消失，或把推测写成了事实。只保留七项已由音轨确认的内容。",
+        nextCount === FINAL_CHAIN_STEPS.length
+          ? "七项事实已经连接。先检查完整因果链，再进入发布决定。"
+          : `已写入：${choice.text}。现在继续下一项。`,
       );
+      return;
     }
+    setMessage(currentChainStep.wrong);
+  };
+
+  const confirmConclusion = () => {
+    setConclusionSolved(true);
+    setMessage("");
+    playFinal("listener-final");
   };
 
   return (
@@ -2906,36 +3010,122 @@ function Finale({
               </blockquote>
             </div>
             <p className="chapter-index">建立最终结论</p>
-            <h2>只选择已经由音轨证明的事实。</h2>
-            <div className="fact-selector">
-              {FINAL_FACTS.map((fact) => (
-                <label
-                  key={fact.id}
-                  className={facts.includes(fact.id) ? "is-selected" : ""}
-                >
-                  <input
-                    type="checkbox"
-                    checked={facts.includes(fact.id)}
-                    onChange={() =>
-                      setFacts((items) =>
-                        items.includes(fact.id)
-                          ? items.filter((id) => id !== fact.id)
-                          : [...items, fact.id],
-                      )
-                    }
-                  />
-                  {fact.text}
-                </label>
-              ))}
+            <h2>不要一次选完。按证据把七个因果位置逐项接起来。</h2>
+            <p className="conclusion-instruction">
+              每次只回答当前问题。黄色卡片是现在需要处理的位置；选对后会自动写入并进入下一项。
+            </p>
+            <div className="conclusion-builder">
+              <aside className="chain-ledger" aria-label="最终事实链进度">
+                <header>
+                  <div>
+                    <span>事实链进度</span>
+                    <strong>
+                      {facts.length}/{FINAL_CHAIN_STEPS.length}
+                    </strong>
+                  </div>
+                  <i>
+                    <b
+                      style={{
+                        width: `${(facts.length / FINAL_CHAIN_STEPS.length) * 100}%`,
+                      }}
+                    />
+                  </i>
+                </header>
+                <ol>
+                  {FINAL_CHAIN_STEPS.map((step, index) => {
+                    const complete = facts.includes(step.id);
+                    const current = index === facts.length && !chainReady;
+                    return (
+                      <li
+                        key={step.id}
+                        className={`${complete ? "is-complete" : ""} ${
+                          current ? "is-current" : ""
+                        }`}
+                        aria-current={current ? "step" : undefined}
+                      >
+                        <span>{String(index + 1).padStart(2, "0")}</span>
+                        <div>
+                          <b>{step.label.split(" / ")[1]}</b>
+                          <p>
+                            {complete
+                              ? step.choices.find((choice) => choice.correct)
+                                  ?.text
+                              : current
+                                ? "正在根据录音确认"
+                                : "等待上一项写入"}
+                          </p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </aside>
+
+              <section className="chain-workspace" aria-live="polite">
+                {!chainReady ? (
+                  <>
+                    <div className="chain-step-heading">
+                      <span>{currentChainStep.label}</span>
+                      <b>
+                        当前只处理第 {facts.length + 1} 项，共{" "}
+                        {FINAL_CHAIN_STEPS.length} 项
+                      </b>
+                    </div>
+                    <h3>{currentChainStep.question}</h3>
+                    <div className="chain-evidence">
+                      <span>证据来源</span>
+                      <b>{currentChainStep.source}</b>
+                      <p>{currentChainStep.evidence}</p>
+                    </div>
+                    <p className="chain-prompt">
+                      根据上面的录音记录，点击能被证据直接支持的结论：
+                    </p>
+                    <div className="chain-options">
+                      {currentChainStep.choices.map((choice) => (
+                        <button
+                          type="button"
+                          key={choice.id}
+                          onClick={() => chooseChainFact(choice)}
+                        >
+                          <span>{choice.text}</span>
+                          <b>写入这一项 →</b>
+                        </button>
+                      ))}
+                    </div>
+                    {message && <p className="chain-feedback">{message}</p>}
+                  </>
+                ) : (
+                  <div className="chain-complete">
+                    <span>CHAIN VERIFIED / 07 OF 07</span>
+                    <h3>完整事实链已经建立。</h3>
+                    <p>
+                      唐肃的行为、陈渡的责任和被删除的陈默都被保留。你不需要再勾选或背诵结论。
+                    </p>
+                    <ol>
+                      {FINAL_CHAIN_STEPS.map((step, index) => (
+                        <li key={step.id}>
+                          <span>{String(index + 1).padStart(2, "0")}</span>
+                          <p>
+                            {
+                              step.choices.find((choice) => choice.correct)
+                                ?.text
+                            }
+                          </p>
+                        </li>
+                      ))}
+                    </ol>
+                    {message && <p className="chain-feedback">{message}</p>}
+                    <button
+                      type="button"
+                      className="verify-button"
+                      onClick={confirmConclusion}
+                    >
+                      因果链已完成，进入发布决定
+                    </button>
+                  </div>
+                )}
+              </section>
             </div>
-            {message && <p className="puzzle-message">{message}</p>}
-            <button
-              type="button"
-              className="verify-button"
-              onClick={verifyFacts}
-            >
-              确认完整事实链
-            </button>
           </>
         ) : (
           <>
