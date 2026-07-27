@@ -1081,6 +1081,140 @@ button:disabled {
   gap: 9px;
 }
 
+.audio-scene-compare,
+.raw-fragment-grid,
+.record-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.audio-scene-compare > button,
+.raw-fragment-grid > button,
+.record-comparison > button {
+  min-height: 118px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: #11191a;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: left;
+}
+
+.audio-scene-compare > button:hover:not(:disabled),
+.raw-fragment-grid > button:hover:not(:disabled),
+.record-comparison > button:hover:not(:disabled) {
+  border-color: #647b71;
+  background: #16201e;
+}
+
+.audio-scene-compare > button:disabled,
+.raw-fragment-grid > button:disabled,
+.record-comparison > button:disabled {
+  cursor: not-allowed;
+  opacity: 0.28;
+}
+
+.audio-scene-compare span,
+.raw-fragment-grid span,
+.record-comparison span {
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.audio-scene-compare strong,
+.raw-fragment-grid strong,
+.record-comparison strong {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.audio-scene-compare em,
+.audio-scene-compare small,
+.raw-fragment-grid small,
+.record-comparison small {
+  margin-top: auto;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 7px;
+  font-style: normal;
+}
+
+.call-response-strip {
+  width: 100%;
+  height: 42px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  align-items: end;
+  gap: 6px;
+}
+
+.call-response-strip i {
+  height: 58%;
+  border: 1px solid #5b776b;
+  background: rgba(143, 185, 164, 0.34);
+}
+
+.call-response-strip i.is-response {
+  height: 88%;
+  border-color: var(--amber);
+  background: rgba(209, 167, 106, 0.34);
+}
+
+.call-response-strip i.is-missing {
+  height: 8%;
+  border-color: var(--danger);
+  background: rgba(182, 108, 99, 0.16);
+}
+
+.meaning-choices {
+  display: grid;
+  gap: 9px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  background: #0d1416;
+}
+
+.meaning-choices > span,
+.splice-choice-heading {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.meaning-choices > div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.meaning-choices button {
+  min-height: 54px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  background: #11191a;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: left;
+}
+
+.meaning-choices button:disabled {
+  cursor: not-allowed;
+  opacity: 0.28;
+}
+
+.meaning-choices button.is-selected {
+  border-color: var(--amber);
+  color: var(--ink);
+  box-shadow: inset 3px 0 0 var(--amber);
+}
+
 .signature-target,
 .source-tag-readout,
 .alignment-readout,
@@ -1355,6 +1489,19 @@ button:disabled {
   min-height: 84px;
 }
 
+.splice-choice-heading {
+  margin-bottom: -2px;
+}
+
+.splice-choice-grid button {
+  min-height: 112px;
+}
+
+.splice-choice-grid button.is-selected {
+  border-color: var(--amber);
+  box-shadow: inset 3px 0 0 var(--amber);
+}
+
 .source-tag-readout {
   border-color: var(--danger-dark);
   background:
@@ -1483,6 +1630,64 @@ button:disabled {
   font-size: 8px;
 }
 
+.overlap-listen {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 14px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--danger-dark);
+  background: rgba(111, 63, 59, 0.1);
+}
+
+.overlap-listen span,
+.overlap-listen small {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.overlap-listen strong {
+  color: var(--danger);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.overlap-listen small {
+  grid-column: 1 / -1;
+}
+
+.overlap-listen.is-aligned {
+  border-color: #607e70;
+  background: rgba(84, 130, 109, 0.1);
+}
+
+.overlap-listen.is-aligned strong {
+  color: var(--green-bright);
+}
+
+.release-transient-reference {
+  display: grid;
+  grid-template-columns: 150px minmax(180px, 1fr) 1.4fr;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: #0a1112;
+}
+
+.release-transient-reference span,
+.release-transient-reference small {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.release-transient-reference .transient-strip {
+  height: 42px;
+}
+
 .alignment-readout {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
@@ -1550,6 +1755,21 @@ button:disabled {
   font-size: 7px;
 }
 
+.transient-strip {
+  width: 100%;
+  height: 34px;
+  display: flex;
+  align-items: end;
+  gap: 7px;
+}
+
+.transient-strip i {
+  flex: 1;
+  min-height: 4px;
+  background: var(--green);
+  opacity: 0.54;
+}
+
 .sample-choices button > strong {
   font-size: 16px;
 }
@@ -1587,6 +1807,28 @@ button:disabled {
   color: var(--green-bright);
   font-family: var(--mono);
   font-size: 12px;
+}
+
+.relay-listen-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.relay-listen-strip i {
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green-bright);
+  box-shadow: 0 0 8px rgba(143, 185, 164, 0.36);
+}
+
+.relay-listen-strip.is-silent i {
+  height: 1px;
+  align-self: center;
+  border-radius: 0;
+  background: var(--danger);
+  box-shadow: none;
+  opacity: 0.55;
 }
 
 .relay-grid {
@@ -1807,7 +2049,7 @@ button:disabled {
 }
 
 .segment-bank button {
-  min-height: 86px;
+  min-height: 126px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1831,6 +2073,10 @@ button:disabled {
   color: var(--faint);
   font-family: var(--mono);
   font-size: 6px;
+}
+
+.segment-bank small {
+  line-height: 1.45;
 }
 
 .segment-bank strong {
@@ -6477,6 +6723,31 @@ body {
 }
 
 @media (max-width: 680px) {
+  .audio-scene-compare,
+  .raw-fragment-grid,
+  .record-comparison {
+    grid-template-columns: 1fr;
+  }
+
+  .audio-scene-compare > button,
+  .raw-fragment-grid > button,
+  .record-comparison > button {
+    min-height: 102px;
+  }
+
+  .release-transient-reference {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .meaning-choices > div {
+    grid-template-columns: 1fr;
+  }
+
+  .splice-choice-grid button {
+    min-height: 92px;
+  }
+
   .signature-target,
   .source-tag-readout,
   .sample-target,
@@ -6529,5 +6800,9 @@ body {
 
   .segment-bank button > b {
     font-size: 5px;
+  }
+
+  .segment-bank button {
+    min-height: 120px;
   }
 }

@@ -119,8 +119,9 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   for (const audibleChoice of [
     "take-a",
     "take-b",
-    "room:",
-    "speaker:",
+    "memory",
+    "accident",
+    "raw:",
     "compare:",
     "sample:",
     "time:",
@@ -133,15 +134,23 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   ]) {
     assert.match(component, new RegExp(audibleChoice.replace(":", "\\:")));
   }
-  assert.match(component, /所有结论都可在不辨认音色的情况下完成/);
-  assert.match(component, /FAN-146/);
-  assert.match(component, /0\.44 \/ 0\.44 \/ 0\.88 秒/);
-  assert.match(component, /00:18\.204/);
-  assert.match(component, /CTRL-A \/ MIC-03 \/ TAKE-18/);
-  assert.match(component, /7\/7 起音重合/);
-  assert.match(component, /瞬态编号 D17/);
-  assert.match(component, /BYPASS_40M \/ CHEN_D \/ 22:50:00/);
-  assert.match(component, /IN:\{meta\.linkIn\} → OUT:\{meta\.linkOut\}/);
+  assert.match(component, /六次敲击 \+ 一个低音回应/);
+  assert.match(component, /六次敲击 \+ 一次吸气 \+ 空拍/);
+  assert.match(component, /有人在等待约定的第七码回应/);
+  assert.match(component, /不看时间码/);
+  assert.match(component, /呼吸与机械滴答/);
+  assert.match(component, /原始残句 A/);
+  assert.match(component, /原始残句 B/);
+  assert.match(component, /唐肃拒绝开门，陈渡随后反驳/);
+  assert.match(component, /仍能听见双重起音/);
+  assert.match(component, /发行版尾部 \/ 六次打击/);
+  assert.match(component, /第六下尾声/);
+  assert.match(component, /规律机械点击第一次消失/);
+  assert.match(component, /听写残句/);
+  assert.doesNotMatch(
+    component,
+    /FAN-146|CTRL-A \/ MIC-03|瞬态编号 D17|自动对齐结果|IN:\{meta\.linkIn\}/,
+  );
   assert.doesNotMatch(component, /试听同一句话/);
   assert.doesNotMatch(component, /单扬声器模式也会用音色区分/);
   assert.match(component, /本章要证明/);
@@ -150,7 +159,7 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /请先完成当前步骤/);
   assert.match(component, /提示会从方向逐步增加到正确操作/);
   assert.match(component, /自动观察记录/);
-  assert.match(component, /这里只记录可测量事实，不替你填写结论/);
+  assert.match(component, /这里只复述听见的残句与声音事件/);
   assert.match(component, /关键观察/);
   assert.match(component, /可选佐证/);
   assert.match(component, /查看完整修复步骤/);
@@ -164,7 +173,7 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /打开提示/);
   assert.match(component, /当前样本仍可重播/);
   assert.match(component, /下一章请重新选择样本/);
-  assert.match(component, /不以音色作为唯一证据/);
+  assert.match(component, /答案来自录音内部的停顿、问答、重复规律与前后矛盾/);
   assert.match(component, /播放头和刻度按当前样本的真实时长推进/);
   assert.match(component, /STORY_TRACKS/);
   assert.match(component, /独立对白轨/);
