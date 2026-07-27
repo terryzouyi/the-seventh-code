@@ -25,6 +25,12 @@ type PlaybackSelection = {
   option: string;
 };
 
+type AudioPlaybackResult = {
+  duration: number;
+  started: boolean;
+  reason?: "sound-off" | "blocked";
+};
+
 type SaveState = {
   started: boolean;
   phase: Phase;
@@ -1148,31 +1154,45 @@ function createAudioEngine() {
   let master: GainNode | null = null;
   let activeBus: GainNode | null = null;
   let playbackTimers: number[] = [];
-  let activeMedia: HTMLAudioElement[] = [];
+  let activeSources: AudioBufferSourceNode[] = [];
+  const voiceBuffers = new Map<string, Promise<AudioBuffer | null>>();
   let sessionId = 0;
 
-  const ensure = () => {
+  const ensureGraph = () => {
     if (!context) {
       context = new AudioContext();
       master = context.createGain();
-      master.gain.value = 0.32;
+      master.gain.value = 0.46;
       master.connect(context.destination);
     }
-    if (context.state === "suspended") void context.resume();
     return { context, master: master as GainNode };
   };
 
-  const beginSession = () => {
-    const graph = ensure();
+  const unlock = async () => {
+    const graph = ensureGraph();
+    if (graph.context.state === "suspended") {
+      await graph.context.resume();
+    }
+    if (graph.context.state !== "running") {
+      throw new Error("audio-context-blocked");
+    }
+    return graph;
+  };
+
+  const beginSession = async () => {
+    const graph = await unlock();
     const now = graph.context.currentTime;
     sessionId += 1;
     playbackTimers.forEach((timer) => window.clearTimeout(timer));
     playbackTimers = [];
-    activeMedia.forEach((media) => {
-      media.pause();
-      media.currentTime = 0;
+    activeSources.forEach((source) => {
+      try {
+        source.stop();
+      } catch {
+        // The source may already have ended.
+      }
     });
-    activeMedia = [];
+    activeSources = [];
     if (activeBus) {
       activeBus.gain.cancelScheduledValues(now);
       activeBus.gain.setValueAtTime(activeBus.gain.value, now);
@@ -1182,7 +1202,7 @@ function createAudioEngine() {
     bus.gain.value = 1;
     bus.connect(graph.master);
     activeBus = bus;
-    return { context: graph.context, bus, now: now + 0.055 };
+    return { context: graph.context, bus, now: now + 0.08 };
   };
 
   const tone = (
@@ -1195,7 +1215,7 @@ function createAudioEngine() {
     type: OscillatorType = "sine",
     attack = 0.018,
   ) => {
-    const graph = ensure();
+    const graph = ensureGraph();
     const oscillator = graph.context.createOscillator();
     const gain = graph.context.createGain();
     const panner = graph.context.createStereoPanner();
@@ -1218,7 +1238,7 @@ function createAudioEngine() {
     pan = 0,
     cutoff = 950,
   ) => {
-    const graph = ensure();
+    const graph = ensureGraph();
     const length = Math.max(1, Math.floor(graph.context.sampleRate * duration));
     const buffer = graph.context.createBuffer(
       1,
@@ -1242,7 +1262,27 @@ function createAudioEngine() {
     source.start(start);
   };
 
+  const loadVoiceBuffer = (clipId: string) => {
+    const cached = voiceBuffers.get(clipId);
+    if (cached) return cached;
+    const graph = ensureGraph();
+    const sourceUrl = new URL(
+      `audio/voices/${clipId}.mp3`,
+      window.location.href,
+    ).toString();
+    const pending = fetch(sourceUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error("voice-fetch-failed");
+        return response.arrayBuffer();
+      })
+      .then((data) => graph.context.decodeAudioData(data))
+      .catch(() => null);
+    voiceBuffers.set(clipId, pending);
+    return pending;
+  };
+
   const playVoiceClip = (
+    bus: AudioNode,
     text: string,
     delay: number,
     {
@@ -1259,28 +1299,31 @@ function createAudioEngine() {
   ) => {
     const profile = VOICE_PROFILES[voice];
     const clip = getVoiceClip(voice, text);
+    const bufferPromise = clip
+      ? loadVoiceBuffer(clip.id)
+      : Promise.resolve(null);
     const scheduledSession = sessionId;
-    const timer = window.setTimeout(() => {
+    const timer = window.setTimeout(async () => {
+      if (scheduledSession !== sessionId) return;
+      const buffer = await bufferPromise;
       if (scheduledSession !== sessionId) return;
       onVoiceCue?.({
         speaker: profile.label,
-        tone: delivery ?? profile.tone,
+        tone: buffer
+          ? delivery ?? profile.tone
+          : `${delivery ?? profile.tone}；音频载入失败，已保留字幕`,
         text,
         danger,
       });
-      if (!clip) return;
-      const media = new Audio(`audio/voices/${clip.id}.mp3`);
-      media.preload = "auto";
-      media.volume = danger ? 0.7 : 0.82;
-      activeMedia.push(media);
-      void media.play().catch(() => {
-        onVoiceCue?.({
-          speaker: profile.label,
-          tone: `${delivery ?? profile.tone}；音频载入失败，已保留字幕`,
-          text,
-          danger,
-        });
-      });
+      if (!buffer) return;
+      const graph = ensureGraph();
+      const source = graph.context.createBufferSource();
+      const voiceGain = graph.context.createGain();
+      source.buffer = buffer;
+      voiceGain.gain.value = danger ? 0.72 : 0.82;
+      source.connect(voiceGain).connect(bus);
+      activeSources.push(source);
+      source.start();
     }, delay);
     playbackTimers.push(timer);
   };
@@ -1386,19 +1429,19 @@ function createAudioEngine() {
     }
   };
 
-  const play = (
+  const play = async (
     stage: number,
     option = "default",
     onVoiceCue?: (cue: VoiceCue) => void,
   ) => {
-    const graph = beginSession();
+    const graph = await beginSession();
     const { bus, now } = graph;
     let voiceQueueEnd = 0;
     const narrate = (
       text: string,
       delay: number,
       options: Omit<
-        NonNullable<Parameters<typeof playVoiceClip>[2]>,
+        NonNullable<Parameters<typeof playVoiceClip>[3]>,
         "onVoiceCue"
       > = {},
     ) => {
@@ -1410,7 +1453,10 @@ function createAudioEngine() {
       );
       voiceQueueEnd =
         scheduledDelay + (clip?.duration ?? 3200);
-      playVoiceClip(text, scheduledDelay, { ...options, onVoiceCue });
+      playVoiceClip(bus, text, scheduledDelay, {
+        ...options,
+        onVoiceCue,
+      });
     };
     const finish = (baseDuration: number) =>
       Math.max(baseDuration, voiceQueueEnd + 280);
@@ -1477,7 +1523,7 @@ function createAudioEngine() {
 
     if (stage === 0) {
       if (option === "take-a") {
-        melody(bus, now, { timbre: "hum" });
+        melody(bus, now, { timbre: "hum", gain: 1.8 });
         narrate("小默，你又把最后一个音唱低了。", 2350, {
           voice: "qiao",
           tone: "听见错误后轻轻笑了一下",
@@ -1493,14 +1539,18 @@ function createAudioEngine() {
         return finish(11200);
       }
       if (option === "take-b") {
-        melody(bus, now, { timbre: "piano" });
+        melody(bus, now, { timbre: "piano", gain: 1.6 });
         narrate("再来一次。最后一下，等你唱。", 2450, {
           voice: "qiao",
           tone: "像隔着玻璃提醒一个孩子",
         });
         return finish(6200);
       }
-      melody(bus, now, { missingLast: true, timbre: "mix" });
+      melody(bus, now, {
+        missingLast: true,
+        timbre: "mix",
+        gain: 1.9,
+      });
       return finish(2600);
     }
     if (stage === 1) {
@@ -1821,8 +1871,8 @@ function createAudioEngine() {
     return finish(10200);
   };
 
-  const uiClick = () => {
-    const graph = ensure();
+  const uiClick = async () => {
+    const graph = await unlock();
     tone(
       graph.master,
       440,
@@ -1838,11 +1888,14 @@ function createAudioEngine() {
     sessionId += 1;
     playbackTimers.forEach((timer) => window.clearTimeout(timer));
     playbackTimers = [];
-    activeMedia.forEach((media) => {
-      media.pause();
-      media.currentTime = 0;
+    activeSources.forEach((source) => {
+      try {
+        source.stop();
+      } catch {
+        // The source may already have ended.
+      }
     });
-    activeMedia = [];
+    activeSources = [];
     if (context && activeBus) {
       const now = context.currentTime;
       activeBus.gain.cancelScheduledValues(now);
@@ -1874,14 +1927,33 @@ function useAudio(soundEnabled: boolean) {
   );
 
   return {
-    play: (
+    play: async (
       stage: number,
       option?: string,
       onVoiceCue?: (cue: VoiceCue) => void,
-    ) =>
-      soundEnabled ? getEngine().play(stage, option, onVoiceCue) : 900,
-    click: () => {
-      if (soundEnabled) getEngine().uiClick();
+    ): Promise<AudioPlaybackResult> => {
+      if (!soundEnabled) {
+        return { duration: 900, started: false, reason: "sound-off" };
+      }
+      try {
+        const duration = await getEngine().play(
+          stage,
+          option,
+          onVoiceCue,
+        );
+        return { duration, started: true };
+      } catch {
+        return { duration: 0, started: false, reason: "blocked" };
+      }
+    },
+    click: async () => {
+      if (!soundEnabled) return false;
+      try {
+        await getEngine().uiClick();
+        return true;
+      } catch {
+        return false;
+      }
     },
     stop: () => getEngine().stop(),
   };
@@ -2276,7 +2348,7 @@ function PuzzleWorkspace({
   hintLevel: number;
   onFailure: () => void;
   onComplete: () => void;
-  onPlay: (option?: string) => void;
+  onPlay: (option?: string) => Promise<boolean>;
   onHint: () => void;
   onObservation: (observation: Observation) => void;
   textAssist: boolean;
@@ -2324,14 +2396,16 @@ function PuzzleWorkspace({
     onObservation(observation);
   };
 
-  const inspectPlay = (option: string) => {
-    onPlay(option);
+  const inspectPlay = async (option: string) => {
+    const ready = await onPlay(option);
+    if (!ready) return false;
     recordObservation(option);
+    return true;
   };
 
-  const guidedPlay = (option: string, expectedStep: number) => {
-    inspectPlay(option);
-    advanceGuide(expectedStep);
+  const guidedPlay = async (option: string, expectedStep: number) => {
+    const ready = await inspectPlay(option);
+    if (ready) advanceGuide(expectedStep);
   };
 
   const applyCorrectOperation = () => {
@@ -3198,10 +3272,16 @@ function Finale({
   const [voiceCue, setVoiceCue] = useState<VoiceCue | null>(null);
   const playbackTimerRef = useRef<number | null>(null);
 
-  const playFinal = (option = "complete") => {
+  const playFinal = async (option = "complete") => {
     setVoiceCue(null);
-    const duration = audio.play(7, option, setVoiceCue);
-    setPlaying(true);
+    const result = await audio.play(7, option, setVoiceCue);
+    setPlaying(result.started);
+    if (!result.started) {
+      if (result.reason === "blocked") {
+        setMessage("浏览器未允许播放。请再次点击当前音频按钮重试。");
+      }
+      return;
+    }
     if (playbackTimerRef.current) {
       window.clearTimeout(playbackTimerRef.current);
     }
@@ -3210,7 +3290,7 @@ function Finale({
         setPlaying(false);
         setVoiceCue(null);
       },
-      duration,
+      result.duration,
     );
   };
 
@@ -3223,7 +3303,7 @@ function Finale({
     if (note === "low") {
       setNoteSolved(true);
       setMessage("");
-      playFinal();
+      void playFinal();
     } else {
       const next = failures + 1;
       setFailures(next);
@@ -3262,7 +3342,7 @@ function Finale({
   const confirmConclusion = () => {
     setConclusionSolved(true);
     setMessage("");
-    playFinal("listener-final");
+    void playFinal("listener-final");
   };
 
   return (
@@ -3299,7 +3379,7 @@ function Finale({
                   onClick={() => {
                     const selected = String(id);
                     setNote(selected);
-                    playFinal(`note:${selected}`);
+                    void playFinal(`note:${selected}`);
                   }}
                 >
                   <i style={{ height: `${height}%` }} />
@@ -3481,6 +3561,7 @@ function EndingScreen({
   const [voiceRevealed, setVoiceRevealed] = useState(false);
   const [voiceCue, setVoiceCue] = useState<VoiceCue | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [audioError, setAudioError] = useState("");
   const playbackTimerRef = useRef<number | null>(null);
   const anomalyVisible = revealedLogs === ending.body.length;
 
@@ -3488,18 +3569,29 @@ function EndingScreen({
     setRevealedLogs((current) => Math.min(ending.body.length, current + 1));
   };
 
-  const playAnomaly = () => {
-    setVoiceRevealed(true);
+  const playAnomaly = async () => {
+    setAudioError("");
     setVoiceCue(null);
-    const duration = audio.play(7, `ending:${endingId}`, setVoiceCue);
-    setPlaying(true);
+    const result = await audio.play(
+      7,
+      `ending:${endingId}`,
+      setVoiceCue,
+    );
+    if (!result.started && result.reason === "blocked") {
+      setPlaying(false);
+      setAudioError("浏览器未允许播放。请再次点击这段人声重试。");
+      return;
+    }
+    setVoiceRevealed(true);
+    setPlaying(result.started);
+    if (!result.started) return;
     if (playbackTimerRef.current) {
       window.clearTimeout(playbackTimerRef.current);
     }
     playbackTimerRef.current = window.setTimeout(() => {
       setPlaying(false);
       setVoiceCue(null);
-    }, duration);
+    }, result.duration);
   };
 
   const toggleEndingSound = () => {
@@ -3608,14 +3700,21 @@ function EndingScreen({
             <LiveVoiceCue cue={voiceCue} soundEnabled={soundEnabled} />
 
             {!voiceRevealed ? (
-              <button
-                type="button"
-                className="anomaly-play"
-                onClick={playAnomaly}
-              >
-                <span>{ending.anomaly.action}</span>
-                <b>这段人声不在发布清单内 →</b>
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="anomaly-play"
+                  onClick={() => void playAnomaly()}
+                >
+                  <span>{ending.anomaly.action}</span>
+                  <b>这段人声不在发布清单内 →</b>
+                </button>
+                {audioError && (
+                  <p className="audio-error" role="alert">
+                    {audioError}
+                  </p>
+                )}
+              </>
             ) : (
               <div className="ending-aftervoice">
                 <div>
@@ -3741,7 +3840,7 @@ export function AudioArchiveGame() {
     updateSave({ soundEnabled: !save.soundEnabled });
   };
 
-  const playTrack = (option?: string) => {
+  const playTrack = async (option?: string) => {
     const selection = option
       ? { stage: viewChapter, option }
       : currentPlayback?.stage === viewChapter
@@ -3750,15 +3849,34 @@ export function AudioArchiveGame() {
     if (!selection) {
       setPlaybackKind("未选择样本");
       setStatus("请先点击谜题中的试听按钮，再使用这里重播");
-      return;
+      return false;
     }
     setCurrentPlayback(selection);
     setVoiceCue(null);
-    const duration = audio.play(
+    setStatus(
+      save.soundEnabled
+        ? "正在启用声音并载入当前样本…"
+        : "声音关闭：显示可视波形",
+    );
+    const result = await audio.play(
       selection.stage,
       selection.option,
       setVoiceCue,
     );
+    if (!result.started) {
+      setPlaying(false);
+      if (result.reason === "sound-off") {
+        setPlaybackKind(
+          describePlaybackKind(selection.stage, selection.option),
+        );
+        setStatus("声音关闭：已保留文字与可视线索");
+        return true;
+      }
+      setPlaybackKind("声音未启动");
+      setStatus("浏览器未允许播放。请再次点击当前样本重试");
+      return false;
+    }
+    const duration = result.duration;
     setPlaying(true);
     setPlaybackKind(
       describePlaybackKind(selection.stage, selection.option),
@@ -3782,31 +3900,39 @@ export function AudioArchiveGame() {
       );
       playbackTimerRef.current = null;
     }, duration);
+    return true;
   };
 
-  const start = () => {
-    audio.click();
+  const start = async () => {
     setVoiceCue(null);
-    const duration = audio.play(7, "father-note", setVoiceCue);
-    setPlaying(true);
-    setPlaybackKind("人物对白");
+    const result = await audio.play(7, "father-note", setVoiceCue);
+    setPlaying(result.started);
+    setPlaybackKind(result.started ? "人物对白" : "声音未启动");
     setCurrentPlayback(null);
     if (playbackTimerRef.current) {
       window.clearTimeout(playbackTimerRef.current);
     }
-    playbackTimerRef.current = window.setTimeout(() => {
-      setPlaying(false);
-      setVoiceCue(null);
-      setPlaybackKind("未选择样本");
-      setStatus("请点击当前步骤中的试听按钮");
-      playbackTimerRef.current = null;
-    }, duration);
+    if (result.started) {
+      playbackTimerRef.current = window.setTimeout(() => {
+        setPlaying(false);
+        setVoiceCue(null);
+        setPlaybackKind("未选择样本");
+        setStatus("请点击当前步骤中的试听按钮");
+        playbackTimerRef.current = null;
+      }, result.duration);
+    }
     setSave((current) => ({
       ...current,
       started: true,
       phase: current.phase === "cover" ? "investigation" : current.phase,
     }));
-    setStatus("陈渡留下了一段未编号口述");
+    setStatus(
+      result.started
+        ? "陈渡留下了一段未编号口述"
+        : result.reason === "sound-off"
+          ? "声音关闭：可以使用文字与可视线索"
+          : "浏览器未允许播放；进入工程后请再次点击样本",
+    );
   };
 
   const registerFailure = () => {
@@ -3823,7 +3949,7 @@ export function AudioArchiveGame() {
   };
 
   const completeChapter = () => {
-    audio.click();
+    void audio.click();
     stopPlayback("本章播放已停止；下一章请重新选择样本", true);
     if (viewChapter < CHAPTERS.length - 1) {
       setViewChapter(viewChapter + 1);
