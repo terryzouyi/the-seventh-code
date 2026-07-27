@@ -133,7 +133,17 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   ]) {
     assert.match(component, new RegExp(audibleChoice.replace(":", "\\:")));
   }
-  assert.match(component, /单扬声器模式也会用音色区分/);
+  assert.match(component, /所有结论都可在不辨认音色的情况下完成/);
+  assert.match(component, /FAN-146/);
+  assert.match(component, /0\.44 \/ 0\.44 \/ 0\.88 秒/);
+  assert.match(component, /00:18\.204/);
+  assert.match(component, /CTRL-A \/ MIC-03 \/ TAKE-18/);
+  assert.match(component, /7\/7 起音重合/);
+  assert.match(component, /瞬态编号 D17/);
+  assert.match(component, /BYPASS_40M \/ CHEN_D \/ 22:50:00/);
+  assert.match(component, /IN:\{meta\.linkIn\} → OUT:\{meta\.linkOut\}/);
+  assert.doesNotMatch(component, /试听同一句话/);
+  assert.doesNotMatch(component, /单扬声器模式也会用音色区分/);
   assert.match(component, /本章要证明/);
   assert.match(component, /现在请做/);
   assert.match(component, /修复步骤/);
@@ -154,13 +164,13 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /打开提示/);
   assert.match(component, /当前样本仍可重播/);
   assert.match(component, /下一章请重新选择样本/);
-  assert.match(component, /谜题证据与剧情对白分轨播放/);
+  assert.match(component, /不以音色作为唯一证据/);
   assert.match(component, /播放头和刻度按当前样本的真实时长推进/);
   assert.match(component, /STORY_TRACKS/);
   assert.match(component, /独立对白轨/);
   assert.match(component, /单独播放对白/);
   assert.match(component, /先选择样本/);
-  assert.match(component, /time:\$\{label\.toLowerCase\(\)\}@\$\{time\}/);
+  assert.match(component, /time:control@\$\{time\}/);
   assert.match(component, /ROOM 房间轨/);
   assert.match(component, /PIANO 钢琴轨/);
   assert.match(component, /CONTROL 控制轨/);

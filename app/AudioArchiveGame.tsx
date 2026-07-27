@@ -91,7 +91,7 @@ const CHAPTERS: Chapter[] = [
     number: "02",
     title: "房间会记得",
     file: "02_房间测试_无标签",
-    objective: "根据回声长度与排风共振，确认这段录音真正来自哪个房间。",
+    objective: "提取录音里的排风设备签名，与三间录音室的维护档案进行匹配。",
     fact: "录音来自 B 棚；门后的六次敲击与七音短句共享同一节奏。",
     monologue:
       "我记得那扇红门。十四年后，最有用的偏偏都是他们认为无关的声音。",
@@ -107,7 +107,7 @@ const CHAPTERS: Chapter[] = [
     number: "03",
     title: "右耳里的六分钟",
     file: "03_导出前_立体声",
-    objective: "分离右声道，将被音乐盖住的三句对话恢复到正确顺序。",
+    objective: "分离右声道，按录音机写入的时间码恢复三句对话。",
     fact: "有人为完成导出拒绝开门；现场还存在一个未登记的孩子。",
     monologue:
       "还有那个孩子。我为什么知道他数第七拍时，会先吸一口气？",
@@ -124,7 +124,7 @@ const CHAPTERS: Chapter[] = [
     number: "04",
     title: "一段话的剪口",
     file: "04_听证副本_合并",
-    objective: "显示剪辑断口，判断“先别开门”真正属于哪个说话人。",
+    objective: "读取剪口两侧的来源标签，再用当晚麦克风登记表锁定说话人。",
     fact: "唐肃说了“先别开门”；官方副本还删除了陈默在场的声音。",
     monologue:
       "我不可能在一段自己从没经历过的录音里，听见父亲这样叫我。",
@@ -141,7 +141,7 @@ const CHAPTERS: Chapter[] = [
     number: "05",
     title: "借来的副歌",
     file: "05_乔岚草稿_与_无潮之夜",
-    objective: "对齐两段旋律，再判断获奖歌曲的打击乐采样来自哪里。",
+    objective: "用自动对齐分数还原旋律，再匹配获奖歌曲中六次打击的瞬态编号。",
     fact: "唐肃盗用了乔岚的七音旋律，也把红门后的六次敲击做成了鼓点。",
     monologue:
       "别人把它当鼓点，我却每次都在等它敲完。只有门外的人，才会说那不是求救。",
@@ -156,7 +156,7 @@ const CHAPTERS: Chapter[] = [
     number: "06",
     title: "报警器的休止符",
     file: "06_四十分钟",
-    objective: "对齐三条时间码，找出火警继电器同时消失的时刻。",
+    objective: "核对三轨事件表，找出继电器共同归零的首个时间窗与被删字段。",
     fact: "22:50，陈渡亲手旁路了火警继电器；他不是唯一有错的人，也并非没有错。",
     monologue:
       "我想找到一个版本，让我可以毫无保留地原谅他。监听者替我做好了那个版本。",
@@ -172,7 +172,7 @@ const CHAPTERS: Chapter[] = [
     number: "07",
     title: "七段静音",
     file: "07_ROOM_不可播放",
-    objective: "反相消去表面音乐，按连续时间码排列七段房间声。",
+    objective: "反相消去表面音乐，按片段首尾校验码接回七段房间声。",
     fact: "唐肃锁门并延迟断电；陈渡关闭警报、先救出陈默，再返回机房。",
     monologue:
       "门没有少敲一下。少回答的人是我。父亲删掉的不是七十秒，是我在那七十秒里听见的一切。",
@@ -196,33 +196,33 @@ const HINTS: string[][] = [
     "正确操作：选择正式混音的第 7 拍，再验证。",
   ],
   [
-    "回声长度不是唯一线索，还要看右后方是否存在周期性排风共振。",
-    "A 厅回声太长，走廊第一次反射太近。剩下的房间符合两项特征。",
-    "正确答案：B 棚。",
+    "不要判断哪间房“听起来更像”。先读取待识别录音的设备签名。",
+    "目标签名是 FAN-146，脉冲间隔为 0.44 / 0.44 / 0.88 秒；维护档案中只有一间房完全相同。",
+    "正确答案：选择设备签名同为 FAN-146、0.44 / 0.44 / 0.88 的 B 棚。",
   ],
   [
     "中央混音把对话盖住了。先单独播放右声道。",
-    "对话顺序跟随背景节拍：取母带 → 等待导出 → 指出她仍在里面。",
-    "正确顺序：A“把 B 棚打开” → B“还差六分钟” → C“她还在里面”。",
+    "右声道会显示每句话自己的嵌入时间码，不需要根据语气猜先后。",
+    "正确顺序：00:18.204 的 A → 00:24.681 的 B → 00:30.117 的 C。",
   ],
   [
-    "先开启“显示剪口”，不要只凭音色判断说话人。",
-    "空调底噪在那句话前断了一层，控制室样本与声音 B 的停顿一致。",
-    "正确答案：“先别开门”来自唐肃。",
+    "先开启“显示剪口”，再读取剪口前半句保留下来的来源标签。",
+    "目标标签是 CTRL-A / MIC-03 / TAKE-18；去登记表里找同一组编号。",
+    "正确答案：MIC-03 当晚登记给唐肃，因此“先别开门”来自唐肃。",
   ],
   [
-    "先让两段旋律在速度和高度上重合，再比较门板共振。",
-    "使用 0.82× 速度和降 3 个半音；六个瞬态仍与 B 棚红门一致。",
-    "正确操作：0.82×、-3 半音，并选择“B 棚红门敲击”。",
+    "每次调整都会给出起音对齐数和轮廓误差，不必听出音高。",
+    "0.82×、-3 半音时会出现 7/7 起音重合；发行版六次打击的编号是 D17。",
+    "正确操作：0.82×、-3 半音，并选择瞬态编号同为 D17 的“B 棚红门敲击”。",
   ],
   [
-    "不要按歌曲开头对齐，要按工程时间码寻找三条轨道共同失去继电器声的位置。",
-    "三条轨道在 22:50 之后同时没有每 20 秒一次的继电器轻响。",
-    "正确答案：22:50；随后保留完整记录，不使用清理版本。",
+    "依次检查三个时间窗，看 ROOM、PIANO、CONTROL 的事件计数在哪一列第一次同时归零。",
+    "22:40 是 3/3；22:50 首次变为 0/3，操作字段同时出现 BYPASS_40M / CHEN_D。",
+    "正确答案：22:50；保留含 FIRE_RELAY、BYPASS_40M 与操作证词的完整记录。",
   ],
   [
-    "先打开反相。音乐消失后，片段底部会出现连续的时间码。",
-    "按完整时间码从早到晚排列；时间接近时，可比较前一段尾部与后一段开头的机架低频。",
+    "先打开反相。音乐消失后，每段会显示入口校验码与出口校验码。",
+    "从 IN:START 开始，让前一段的 OUT 与后一段的 IN 完全相同，直到 OUT:END。",
     "正确顺序：K4 → M1 → R7 → B2 → Q5 → D8 → H3。",
   ],
   [
@@ -638,9 +638,9 @@ const FINAL_CHAIN_STEPS = [
     question: "官方副本为什么把“先别开门”归给了陈渡？",
     source: "第 04 章 · 00:42.118 剪口",
     evidence:
-      "句中底噪从控制室 61 Hz 跳到机房 50 Hz；前半句与唐肃的控制室样本一致。",
+      "剪口前半句保留 CTRL-A / MIC-03 / TAKE-18 来源标签；当晚登记表显示 MIC-03 由唐肃使用。",
     wrong:
-      "同一句中出现两个房间指纹，说明它不是单纯的音色相似，而是被拼接过。",
+      "来源标签跨过一句话发生变化，证明副本经过拼接；身份来自设备登记，不来自嗓音猜测。",
     choices: [
       { id: "edited", text: "听证录音被剪辑，并错置了说话人", correct: true },
       { id: "similar", text: "两人声音相似，记录人员只是听错了", correct: false },
@@ -666,9 +666,9 @@ const FINAL_CHAIN_STEPS = [
     question: "十四年后的获奖作品使用了什么原始材料？",
     source: "第 05 章 · 0.82× / -3 半音",
     evidence:
-      "旋律对齐后误差仅 0.8%；六次打击与 B 棚红门瞬态相似度 96%。",
+      "归一化后 7/7 起音重合，轮廓误差仅 0.8%；发行版与 B 棚红门的瞬态编号均为 D17。",
     wrong:
-      "重新演奏木鱼的相似度只有 41%，无法解释完全相同的六次间距与门板尾响。",
+      "重新演奏木鱼的编号是 W04，无法解释发行工程为何保存了来自事故录音的 D17 索引。",
     choices: [
       {
         id: "stolen",
@@ -817,10 +817,10 @@ function describePlayback(stage: number, option = "default") {
   }
   if (stage === 1) {
     return {
-      "room:a": "A 厅参考：长混响与开阔低频",
-      "room:b": "B 棚参考：短混响与右后排风共振",
-      "room:hall": "走廊参考：过近的金属反射",
-    }[option] ?? "待识别房间录音：短混响、排风声与六次敲击";
+      "room:a": "A 厅档案：设备签名 FAN-132",
+      "room:b": "B 棚档案：设备签名 FAN-146",
+      "room:hall": "走廊档案：无周期排风设备",
+    }[option] ?? "待识别录音：提取设备签名与六次敲击";
   }
   if (stage === 2) {
     return {
@@ -830,7 +830,11 @@ function describePlayback(stage: number, option = "default") {
     }[option] ?? "中央混音：音乐覆盖了对话";
   }
   if (stage === 3) {
-    if (option === "seam") return "剪口监听：底噪在句中断裂";
+    if (option === "seam") return "剪口监听：来源标签在句中切换";
+    if (option === "splice") return "剪口数据：CTRL-A / MIC-03 / TAKE-18";
+    if (option.startsWith("miclog:")) {
+      return `麦克风登记：${option.slice(7).toUpperCase()}`;
+    }
     if (option.startsWith("speaker:")) {
       return `说话人参考：${option.slice(8).toUpperCase()}`;
     }
@@ -872,7 +876,7 @@ function getReviewPlaybackOption(stage: number) {
     "final",
     "default",
     "right",
-    "speaker:tang",
+    "seam",
     "compare:0.82:-3",
     "record:full",
     "phase:on",
@@ -938,22 +942,22 @@ const GUIDE_CONTENT = [
   {
     question: "这段未标注录音实际来自哪个房间？",
     plain:
-      "先听待识别录音，再依次听三个房间参考。比较回声长短和排风声位置，不需要判断音高。",
-    term: "房间响应：同一个声音在不同空间里留下的回声形状。",
+      "先提取待识别录音的设备签名，再读取三间房的维护档案。编号和脉冲间隔完全一致才算匹配。",
+    term: "设备签名：排风电机在频谱中留下的固定编号与脉冲间隔，不靠主观听感。",
     steps: [
-      "试听待识别的房间录音",
-      "试听 A 厅参考",
-      "试听 B 棚参考",
-      "试听走廊参考",
-      "选择最接近待识别录音的房间",
+      "提取待识别录音的设备签名",
+      "读取 A 厅维护档案",
+      "读取 B 棚维护档案",
+      "读取走廊维护档案",
+      "选择签名完全一致的房间",
       "提交房间判断",
     ],
   },
   {
     question: "被音乐盖住的三句话藏在哪个声道？",
     plain:
-      "依次单独听中央、左侧和右侧。找到对白后，再按听见的先后顺序排列文字。",
-    term: "声道：左右两边可以保存不同声音；单扬声器模式也会用音色区分。",
+      "依次单独检查中央、左侧和右侧。找到对白后，按每句话显示的嵌入时间码排列。",
+    term: "声道：录音左右两边可保存不同内容；系统会把所选声道同时转成文字和时间码。",
     steps: [
       "试听中央混音",
       "试听左声道",
@@ -965,37 +969,35 @@ const GUIDE_CONTENT = [
   {
     question: "“先别开门”真正是谁说的？",
     plain:
-      "先听合并副本，再显示句子中间的剪口。随后用同一句话比较三个人的参考声音。",
-    term: "剪口：两段录音被拼到一起时留下的底噪断层。",
+      "先显示句子中间的剪口，读取前半句的来源标签，再到当晚麦克风登记表中查找同一编号。",
+    term: "来源标签：录音机写入片段的房间、麦克风与拍次编号，比辨认嗓音更可靠。",
     steps: [
       "试听被合并的听证副本",
       "显示并试听剪辑断口",
-      "试听乔岚的说话人参考",
-      "试听唐肃的说话人参考",
-      "试听陈渡的说话人参考",
-      "选择真正的说话人",
+      "读取剪口前半句的来源标签",
+      "在麦克风登记表中选择完全匹配的记录",
       "提交说话人判断",
     ],
   },
   {
     question: "获奖歌曲怎样改动了乔岚的原始旋律？",
     plain:
-      "先分别听原稿和发行版，再逐项调整速度、音高并比较三种敲击材料。",
-    term: "移调：让整段声音一起变高或变低；这里只需点击比较，不用懂乐理。",
+      "先载入原稿和发行版，再调整参数，观察系统给出的起音重合数与轮廓误差；最后匹配瞬态编号。",
+    term: "自动对齐：系统直接计算两段声音有多少起音重合，不要求玩家听出速度或音高。",
     steps: [
       "试听乔岚的原始草稿",
       "试听发行版本",
       "选择一个速度并听双轨对比",
       "选择一个移调值并再次对比",
-      "选择最接近发行版的敲击材料",
+      "选择瞬态编号与发行版相同的材料",
       "提交对齐结果",
     ],
   },
   {
     question: "火警继电器从哪个时刻开始消失？",
     plain:
-      "先听完整记录，再依次比较三个时间窗和清理版本，最后分别选择时间与应保留的版本。",
-    term: "继电器声：正常状态下周期出现的短促机械点击。",
+      "先载入完整记录，再依次检查三个时间窗的三轨事件计数。找到首次共同归零的一列，并核对清理版本删掉的字段。",
+    term: "事件计数：系统把机械点击转换为 3/3 或 0/3；声音只用于复核。",
     steps: [
       "试听完整记录",
       "试听 22:40 时间窗",
@@ -1010,13 +1012,13 @@ const GUIDE_CONTENT = [
   {
     question: "被表面音乐盖住的七段房间声，原本是什么顺序？",
     plain:
-      "先听覆盖状态，再开启反相去掉共同音乐。先把七段都试听一遍，然后第二轮按时间连续性排列。",
-    term: "反相：让两份相同音乐互相抵消，只留下它们不同的房间声。",
+      "先开启反相去掉共同音乐，逐段读取首尾校验码。排列时让上一段的 OUT 与下一段的 IN 完全相同。",
+    term: "片段校验码：录音机写在每段首尾的连接编号，相同编号代表两段原本相邻。",
     steps: [
       "试听仍被音乐覆盖的录音",
       "开启反相，听见隐藏的房间声",
-      "逐个试听七段碎片",
-      "再次点击碎片，按时间顺序排入",
+      "逐个检查七段碎片的首尾校验码",
+      "再次点击碎片，按校验链顺序排入",
       "提交七段房间声顺序",
     ],
   },
@@ -1033,15 +1035,63 @@ type Observation = {
 
 const FRAGMENT_META: Record<
   number,
-  { code: string; time: string; continuity: string }
+  {
+    code: string;
+    time: string;
+    linkIn: string;
+    linkOut: string;
+    continuity: string;
+  }
 > = {
-  1: { code: "K4", time: "23:15:08.214", continuity: "机架低频 57→60 Hz" },
-  2: { code: "M1", time: "23:15:19.882", continuity: "机架低频 60→63 Hz" },
-  3: { code: "R7", time: "23:15:31.406", continuity: "机架低频 63→59 Hz" },
-  4: { code: "B2", time: "23:15:43.017", continuity: "六次门板瞬态" },
-  5: { code: "Q5", time: "23:15:52.663", continuity: "儿童声音；尾部 58 Hz" },
-  6: { code: "D8", time: "23:16:01.090", continuity: "男性声音；尾部 61 Hz" },
-  7: { code: "H3", time: "23:16:09.742", continuity: "安全门关闭；低频消失" },
+  1: {
+    code: "K4",
+    time: "23:15:08.214",
+    linkIn: "START",
+    linkOut: "C2",
+    continuity: "记录起点；唐肃下令锁门",
+  },
+  2: {
+    code: "M1",
+    time: "23:15:19.882",
+    linkIn: "C2",
+    linkOut: "F7",
+    continuity: "陈渡发现机架冒烟",
+  },
+  3: {
+    code: "R7",
+    time: "23:15:31.406",
+    linkIn: "F7",
+    linkOut: "B4",
+    continuity: "唐肃阻止断电",
+  },
+  4: {
+    code: "B2",
+    time: "23:15:43.017",
+    linkIn: "B4",
+    linkOut: "Q1",
+    continuity: "六次门板瞬态",
+  },
+  5: {
+    code: "Q5",
+    time: "23:15:52.663",
+    linkIn: "Q1",
+    linkOut: "D6",
+    continuity: "儿童声音出现",
+  },
+  6: {
+    code: "D8",
+    time: "23:16:01.090",
+    linkIn: "D6",
+    linkOut: "H9",
+    continuity: "陈渡带陈默离开",
+  },
+  7: {
+    code: "H3",
+    time: "23:16:09.742",
+    linkIn: "H9",
+    linkOut: "END",
+    continuity: "安全门关闭；记录终点",
+  },
 };
 
 const OBSERVATION_LIBRARY: Array<
@@ -1066,23 +1116,23 @@ const OBSERVATION_LIBRARY: Array<
   },
   {
     default: {
-      title: "待识别录音 / 空间特征",
-      detail: "回声衰减约 0.82 秒；右后方每 0.44 秒出现一次 146 Hz 共振。",
+      title: "待识别录音 / 设备签名",
+      detail: "提取结果：FAN-146；脉冲间隔 0.44 / 0.44 / 0.88 秒。",
       role: "primary",
     },
     "room:a": {
-      title: "A 厅参考",
-      detail: "回声衰减 2.37 秒；低频开阔，没有周期性 146 Hz 共振。",
+      title: "A 厅 / 维护档案",
+      detail: "设备签名 FAN-132；脉冲间隔 0.51 / 0.51 / 1.02 秒。",
       role: "observation",
     },
     "room:b": {
-      title: "B 棚参考",
-      detail: "回声衰减 0.79 秒；右后排风口存在 146 Hz 周期共振。",
+      title: "B 棚 / 维护档案",
+      detail: "设备签名 FAN-146；脉冲间隔 0.44 / 0.44 / 0.88 秒，完全匹配。",
       role: "support",
     },
     "room:hall": {
-      title: "走廊参考",
-      detail: "回声衰减 0.51 秒；第一次金属反射出现在 0.08 秒。",
+      title: "走廊 / 维护档案",
+      detail: "无周期排风设备；只记录到门禁电磁锁脉冲 LOCK-08。",
       role: "observation",
     },
   },
@@ -1098,69 +1148,74 @@ const OBSERVATION_LIBRARY: Array<
       role: "support",
     },
     right: {
-      title: "右声道 / 内容检测",
-      detail: "检测到 3 段连续人声，起点依次为 00:18、00:24、00:30。",
+      title: "右声道 / 嵌入时间码",
+      detail: "检测到 3 段人声，起点为 00:18.204、00:24.681、00:30.117；尾部另有未登记童声。",
       role: "primary",
     },
   },
   {
     default: {
-      title: "听证副本 / 底噪变化",
-      detail: "00:42.118 处背景从控制室 61 Hz 切换为机房 50 Hz。",
+      title: "听证副本 / 来源变化",
+      detail: "00:42.118 处出现拼接断点；前后片段的来源标签不一致。",
       role: "observation",
     },
     seam: {
-      title: "剪口前半句 / 房间指纹",
-      detail: "“先别开门”所在部分保留控制室 61 Hz 空调底噪。",
+      title: "剪口 / 拼接确认",
+      detail: "“先别开门”位于断点前；后半句来自另一条导出轨。",
       role: "primary",
     },
-    "speaker:qiao": {
-      title: "乔岚参考 / B 棚",
-      detail: "背景包含右后排风口 146 Hz 周期共振。",
+    splice: {
+      title: "剪口前半句 / 来源标签",
+      detail: "CTRL-A / MIC-03 / TAKE-18；标签校验通过，未被后期改写。",
+      role: "primary",
+    },
+    "miclog:qiao": {
+      title: "登记表 / 乔岚",
+      detail: "B-STUDIO / MIC-01 / TAKE-11；与目标标签不一致。",
       role: "observation",
     },
-    "speaker:tang": {
-      title: "唐肃参考 / 控制室",
-      detail: "背景包含稳定的 61 Hz 空调底噪。",
+    "miclog:tang": {
+      title: "登记表 / 唐肃",
+      detail: "CTRL-A / MIC-03 / TAKE-18；三项与目标标签完全一致。",
       role: "support",
     },
-    "speaker:chen": {
-      title: "陈渡参考 / 机房",
-      detail: "背景包含 50 Hz 机架低频与高频缺口。",
+    "miclog:chen": {
+      title: "登记表 / 陈渡",
+      detail: "MACHINE / MIC-05 / TAKE-22；与目标标签不一致。",
       role: "observation",
     },
   },
   {
     source: {
       title: "乔岚草稿 / 旋律轮廓",
-      detail: "七音轮廓编号：3–6–6–4–2–5–1；速度基准 1.00×。",
+      detail: "起音间隔指纹 O7-310；七音轮廓编号 3–6–6–4–2–5–1。",
       role: "observation",
     },
     released: {
-      title: "发行版本 / 初始差异",
-      detail: "速度约快 22%，整体高约 3 个半音；尾部存在 6 次木质瞬态。",
+      title: "发行版本 / 归一化任务",
+      detail: "系统估算需减速 18% 并降低 3 半音；六次打击索引为 D17。",
       role: "observation",
     },
     "sample:new": {
-      title: "重新演奏木鱼 / 瞬态匹配",
-      detail: "与发行版瞬态相似度 41%；高频衰减过快。",
+      title: "重新演奏木鱼 / 索引",
+      detail: "瞬态编号 W04；来源创建于 2014 年，与发行版 D17 不一致。",
       role: "observation",
     },
     "sample:door": {
-      title: "B 棚红门 / 瞬态匹配",
-      detail: "与发行版瞬态相似度 96%；低频尾响和六次间距均重合。",
+      title: "B 棚红门 / 索引",
+      detail: "瞬态编号 D17；源文件指向 02_ROOM 的六次门板敲击，完全匹配。",
       role: "support",
     },
     "sample:relay": {
-      title: "机房继电器 / 瞬态匹配",
-      detail: "与发行版瞬态相似度 23%；持续时间明显过短。",
+      title: "机房继电器 / 索引",
+      detail: "瞬态编号 R03；与发行版 D17 不一致。",
       role: "observation",
     },
   },
   {
     "record:full": {
-      title: "完整记录 / 继电器周期",
-      detail: "22:50 前每 20 秒出现一次机械点击；最后一次为 22:49:40。",
+      title: "完整记录 / 事件字段",
+      detail: "保留 FIRE_RELAY、BYPASS_40M、操作人 CHEN_D 与原始证词。",
       role: "observation",
     },
     "time:22:40": {
@@ -1170,7 +1225,7 @@ const OBSERVATION_LIBRARY: Array<
     },
     "time:22:50": {
       title: "22:50 时间窗",
-      detail: "22:50:00 之后三个声道同时变为 0/3；音乐录制仍继续。",
+      detail: "首次出现 ROOM 0/3、PIANO 0/3、CONTROL 0/3；同刻写入 BYPASS_40M / CHEN_D。",
       role: "primary",
     },
     "time:23:00": {
@@ -1180,7 +1235,7 @@ const OBSERVATION_LIBRARY: Array<
     },
     "record:clean": {
       title: "清理版本 / 元数据差异",
-      detail: "删除字段：FIRE_RELAY、BYPASS_40M 与陈渡的对应证词。",
+      detail: "删除字段：FIRE_RELAY、BYPASS_40M、操作人 CHEN_D 与陈渡的对应证词。",
       role: "support",
     },
   },
@@ -1198,17 +1253,32 @@ const OBSERVATION_LIBRARY: Array<
   },
 ];
 
+function getAlignmentMetrics(speed: string, pitch: string) {
+  const speedScore =
+    speed === "0.82" ? 4 : speed === "0.92" ? 2 : 1;
+  const pitchScore =
+    pitch === "-3" ? 3 : pitch === "-2" ? 2 : 1;
+  const matched = speed === "0.82" && pitch === "-3";
+  const onsetMatches = matched ? 7 : Math.min(6, speedScore + pitchScore);
+  const error = matched ? "0.8%" : `${20 - onsetMatches * 2}.4%`;
+
+  return {
+    matched,
+    onsetMatches,
+    error,
+    status: matched ? "来源指纹一致" : "尚未达到来源判定阈值",
+  };
+}
+
 function getObservation(stage: number, option: string): Observation | null {
   if (stage === 4 && option.startsWith("compare:")) {
     const [, speed = "1.00", pitch = "0"] = option.split(":");
-    const matched = speed === "0.82" && pitch === "-3";
+    const metrics = getAlignmentMetrics(speed, pitch);
     return {
       id: `${stage}:${option}`,
       title: `双轨对齐 / ${speed}×、${pitch} 半音`,
-      detail: matched
-        ? "旋律轮廓误差 0.8%；七个起音的平均偏差仅 11 ms。"
-        : "旋律仍有明显拍点漂移或高度偏差；轮廓误差大于 14%。",
-      role: matched ? "primary" : "observation",
+      detail: `${metrics.onsetMatches}/7 起音重合；轮廓误差 ${metrics.error}；${metrics.status}。`,
+      role: metrics.matched ? "primary" : "observation",
     };
   }
   if (stage === 5) {
@@ -1231,7 +1301,7 @@ function getObservation(stage: number, option: string): Observation | null {
     return {
       id: `${stage}:${option}`,
       title: `碎片 ${meta.code} / 时间码`,
-      detail: `${meta.time}；${meta.continuity}`,
+      detail: `${meta.time}；IN:${meta.linkIn} → OUT:${meta.linkOut}；${meta.continuity}`,
       role: "observation",
     };
   }
@@ -1245,7 +1315,7 @@ const SOLUTION_OBSERVATION_OPTIONS = [
   ["final"],
   ["default", "room:b"],
   ["right"],
-  ["seam", "speaker:tang"],
+  ["seam", "splice", "miclog:tang"],
   ["compare:0.82:-3", "sample:door"],
   ["time:22:50", "record:clean"],
   [
@@ -2586,6 +2656,11 @@ function PuzzleWorkspace({
     if (ready) advanceGuide(expectedStep);
   };
 
+  const guidedInspect = (option: string, expectedStep: number) => {
+    recordObservation(option);
+    advanceGuide(expectedStep);
+  };
+
   const applyCorrectOperation = () => {
     if (stage === 0) setBeat(6);
     if (stage === 1) setRoom("b");
@@ -2633,7 +2708,7 @@ function PuzzleWorkspace({
     }
     if (stage === 1) {
       if (room === "b") succeed();
-      else fail("回声长度或排风方向有一项对不上。");
+      else fail("设备编号或脉冲间隔与待识别录音不一致。");
       return;
     }
     if (stage === 2) {
@@ -2643,7 +2718,7 @@ function PuzzleWorkspace({
         fail(
           channel !== "right"
             ? "中央混音仍然盖住了对话。"
-            : "三句话之间的节拍没有连续。",
+            : "三句话没有按嵌入时间码从早到晚排列。",
         );
       }
       return;
@@ -2653,8 +2728,8 @@ function PuzzleWorkspace({
       else {
         fail(
           !cutsVisible
-            ? "必须先显示剪口，才能排除被合并后的假声道。"
-            : "这个声纹的停顿和控制室样本不一致。",
+            ? "必须先显示剪口，才能读取断点前的来源标签。"
+            : "所选登记记录与 CTRL-A / MIC-03 / TAKE-18 不完全一致。",
         );
       }
       return;
@@ -2684,15 +2759,23 @@ function PuzzleWorkspace({
       fail(
         !inverted
           ? "表面音乐仍然盖住房间声。"
-          : "机架低频在两个片段之间断开了。",
+          : "片段之间存在不相等的 OUT / IN 校验码。",
       );
     }
   };
 
   const dialogueCards = [
-    { id: "b", text: "先别开门，导出还差六分钟。" },
-    { id: "c", text: "她还在里面。" },
-    { id: "a", text: "把 B 棚打开，母带归我。" },
+    {
+      id: "b",
+      time: "00:24.681",
+      text: "先别开门，导出还差六分钟。",
+    },
+    { id: "c", time: "00:30.117", text: "她还在里面。" },
+    {
+      id: "a",
+      time: "00:18.204",
+      text: "把 B 棚打开，母带归我。",
+    },
   ];
 
   const shuffledSegments = [4, 1, 6, 2, 7, 3, 5];
@@ -2700,6 +2783,7 @@ function PuzzleWorkspace({
   const playComparison = (nextSpeed = speed, nextPitch = pitch) => {
     inspectPlay(`compare:${nextSpeed}:${nextPitch}`);
   };
+  const alignmentMetrics = getAlignmentMetrics(speed, pitch);
 
   const guideReadyToVerify =
     guideStep >= GUIDE_CONTENT[stage].steps.length - 1;
@@ -2791,13 +2875,22 @@ function PuzzleWorkspace({
 
       {stage === 1 && (
         <>
-          <div className="guided-primary-action">
+          <div className="signature-target">
+            <div>
+              <span>待识别录音 / 自动提取</span>
+              <strong>{guideStep > 0 ? "FAN-146" : "等待提取"}</strong>
+            </div>
+            <p>
+              {guideStep > 0
+                ? "脉冲间隔 0.44 / 0.44 / 0.88 秒"
+                : "系统会把听感转换为可直接比对的设备编号。"}
+            </p>
             <SystemButton
               active={guideStep === 0}
               className={guideStep === 0 ? "is-next-action" : ""}
               onClick={() => guidedPlay("default", 0)}
             >
-              {guideStep > 0 ? "重新试听待识别录音" : "试听待识别录音"}
+              {guideStep > 0 ? "重新提取并试听" : "提取设备签名"}
             </SystemButton>
           </div>
           <div className="room-grid">
@@ -2805,21 +2898,24 @@ function PuzzleWorkspace({
               {
                 id: "a",
                 name: "A 厅",
-                meta: "2.4s / 低频开阔",
+                signature: "FAN-132",
+                meta: "0.51 / 0.51 / 1.02 秒",
                 bars: [92, 76, 61, 45, 32],
                 step: 1,
               },
               {
                 id: "b",
                 name: "B 棚",
-                meta: "0.8s / 右后排风共振",
+                signature: "FAN-146",
+                meta: "0.44 / 0.44 / 0.88 秒",
                 bars: [86, 52, 31, 17, 8],
                 step: 2,
               },
               {
                 id: "hall",
                 name: "走廊",
-                meta: "0.5s / 早期反射过近",
+                signature: "LOCK-08",
+                meta: "无周期排风脉冲",
                 bars: [88, 67, 18, 6, 2],
                 step: 3,
               },
@@ -2844,8 +2940,9 @@ function PuzzleWorkspace({
                 }}
               >
                 <span>{item.name}</span>
+                <strong>{item.signature}</strong>
                 <small>{item.meta}</small>
-                <em>{guideStep < 4 ? "试听空间参考" : "选择这个房间"}</em>
+                <em>{guideStep < 4 ? "读取档案并试听" : "选择这份匹配"}</em>
                 <div className="decay-bars" aria-hidden="true">
                   {item.bars.map((height, index) => (
                     <i key={index} style={{ height: `${height}%` }} />
@@ -2897,7 +2994,9 @@ function PuzzleWorkspace({
                     }
                   }}
                 >
-                  <span>声音 {card.id.toUpperCase()}</span>
+                  <span>
+                    声音 {card.id.toUpperCase()} · {card.time}
+                  </span>
                   {card.text}
                 </button>
               ))}
@@ -2959,36 +3058,50 @@ function PuzzleWorkspace({
           >
             {cutsVisible ? "剪口已显示" : "显示剪辑断口"}
           </SystemButton>
-          <div className="speaker-grid">
+          <div className={`source-tag-readout ${guideStep >= 3 ? "is-read" : ""}`}>
+            <div>
+              <span>断点前来源标签</span>
+              <strong>
+                {guideStep >= 3
+                  ? "CTRL-A / MIC-03 / TAKE-18"
+                  : "•••••• / •••••• / •••••••"}
+              </strong>
+            </div>
+            <button
+              type="button"
+              disabled={guideStep < 2}
+              className={guideStep === 2 ? "is-next-action" : ""}
+              onClick={() => guidedInspect("splice", 2)}
+            >
+              {guideStep >= 3 ? "来源标签已读取" : "读取剪口元数据"}
+            </button>
+          </div>
+          <div className="mic-log-heading">
+            <span>2012.07.17 / 麦克风登记表</span>
+            <small>选择三项编号都与来源标签相同的记录</small>
+          </div>
+          <div className="speaker-grid mic-log-grid">
             {[
-              ["qiao", "乔岚", "B 棚 / 短混响", 2],
-              ["tang", "唐肃", "控制室 / 长停顿", 3],
-              ["chen", "陈渡", "机房 / 高频缺口", 4],
-            ].map(([id, name, meta, step]) => (
+              ["qiao", "乔岚", "B-STUDIO", "MIC-01", "TAKE-11"],
+              ["tang", "唐肃", "CTRL-A", "MIC-03", "TAKE-18"],
+              ["chen", "陈渡", "MACHINE", "MIC-05", "TAKE-22"],
+            ].map(([id, name, roomId, micId, takeId]) => (
               <button
                 type="button"
                 key={id}
-                disabled={guideStep < Number(step)}
+                disabled={guideStep < 3}
                 className={`${speaker === String(id) ? "is-selected" : ""} ${
-                  guideStep === Number(step) || guideStep === 5
-                    ? "is-next-action"
-                    : ""
+                  guideStep === 3 ? "is-next-action" : ""
                 }`}
                 onClick={() => {
-                  if (guideStep < 5) {
-                    guidedPlay(`speaker:${id}`, Number(step));
-                  } else {
-                    setSpeaker(String(id));
-                    inspectPlay(`speaker:${id}`);
-                    advanceGuide(5);
-                  }
+                  setSpeaker(String(id));
+                  guidedInspect(`miclog:${id}`, 3);
                 }}
               >
                 <span>{name}</span>
-                <small>{meta}</small>
-                <em>
-                  {guideStep < 5 ? "试听同一句话" : "选择为真正说话人"}
-                </em>
+                <strong>{roomId}</strong>
+                <small>{micId} / {takeId}</small>
+                <em>选择这条登记记录</em>
               </button>
             ))}
           </div>
@@ -3055,12 +3168,33 @@ function PuzzleWorkspace({
               ))}
             </div>
           </div>
+          <div
+            className={`alignment-readout ${
+              alignmentMetrics.matched ? "is-matched" : ""
+            }`}
+            aria-live="polite"
+          >
+            <div>
+              <span>自动对齐结果</span>
+              <strong>{alignmentMetrics.onsetMatches}/7 起音重合</strong>
+            </div>
+            <div>
+              <span>轮廓误差</span>
+              <strong>{alignmentMetrics.error}</strong>
+            </div>
+            <p>{alignmentMetrics.status}</p>
+          </div>
+          <div className="sample-target">
+            <span>发行工程中的六次打击索引</span>
+            <strong>D17</strong>
+            <small>选择来源索引完全相同的原始材料</small>
+          </div>
           <div className="sample-choices">
             {[
-              ["new", "重新演奏的木鱼"],
-              ["door", "B 棚红门敲击"],
-              ["relay", "机房继电器"],
-            ].map(([id, label]) => (
+              ["new", "重新演奏的木鱼", "W04"],
+              ["door", "B 棚红门敲击", "D17"],
+              ["relay", "机房继电器", "R03"],
+            ].map(([id, label, fingerprint]) => (
               <button
                 type="button"
                 key={id}
@@ -3075,7 +3209,8 @@ function PuzzleWorkspace({
                 }}
               >
                 <span>{label}</span>
-                <small>点击试听</small>
+                <strong>{fingerprint}</strong>
+                <small>选择并试听复核</small>
               </button>
             ))}
           </div>
@@ -3093,40 +3228,65 @@ function PuzzleWorkspace({
               {guideStep > 0 ? "重新试听完整记录" : "试听完整记录"}
             </SystemButton>
           </div>
-          <div className="relay-grid">
-            {["ROOM", "PIANO", "CONTROL"].map((label, row) => (
-              <div className="relay-row" key={label}>
-                <span>{label}</span>
-                {["22:40", "22:50", "23:00"].map((time, index) => (
-                  <button
-                    type="button"
-                    key={time}
-                    disabled={guideStep < index + 1}
-                    className={`${relayTime === time ? "is-selected" : ""} ${
-                      index >= 1 ? "silent" : ""
-                    } ${
-                      guideStep === index + 1 || guideStep === 5
-                        ? "is-next-action"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      const option = `time:${label.toLowerCase()}@${time}`;
-                      if (guideStep < 5) {
-                        guidedPlay(option, index + 1);
-                      } else {
-                        setRelayTime(time);
-                        inspectPlay(option);
-                        advanceGuide(5);
-                      }
-                    }}
-                    aria-label={`${label} ${time}`}
-                  >
-                    {index === 0 ? "•••" : "—"}
-                    {row === 2 && <small>{time}</small>}
-                  </button>
-                ))}
+          <div className="relay-window-actions" aria-label="依次检查时间窗">
+            {["22:40", "22:50", "23:00"].map((time, index) => (
+              <button
+                type="button"
+                key={time}
+                disabled={guideStep < index + 1}
+                className={
+                  guideStep === index + 1 ? "is-next-action" : ""
+                }
+                onClick={() =>
+                  guidedPlay(`time:control@${time}`, index + 1)
+                }
+              >
+                <span>检查时间窗</span>
+                <strong>{time}</strong>
+              </button>
+            ))}
+          </div>
+          <div className="relay-grid relay-ledger" role="table">
+            <div className="relay-row relay-head" role="row">
+              <span role="columnheader">轨道</span>
+              <b role="columnheader">22:40</b>
+              <b role="columnheader">22:50</b>
+              <b role="columnheader">23:00</b>
+            </div>
+            {["ROOM", "PIANO", "CONTROL"].map((label) => (
+              <div className="relay-row" key={label} role="row">
+                <span role="rowheader">{label}</span>
+                <b>3/3</b>
+                <b className="silent">0/3</b>
+                <b className="silent">0/3</b>
               </div>
             ))}
+            <div className="relay-operation">
+              <span>首次共同归零事件</span>
+              <strong>BYPASS_40M / CHEN_D / 22:50:00</strong>
+            </div>
+          </div>
+          <div className="relay-time-choices">
+            <span>选择共同归零首次发生的时间窗</span>
+            <div>
+              {["22:40", "22:50", "23:00"].map((time) => (
+                <button
+                  type="button"
+                  key={time}
+                  disabled={guideStep < 5}
+                  className={`${relayTime === time ? "is-selected" : ""} ${
+                    guideStep === 5 ? "is-next-action" : ""
+                  }`}
+                  onClick={() => {
+                    setRelayTime(time);
+                    recordObservation(`time:${time}`);
+                    advanceGuide(5);
+                  }}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="clean-version">
             <div>
@@ -3215,7 +3375,7 @@ function PuzzleWorkspace({
             </SystemButton>
             <p>
               {inverted
-                ? "共同音乐已抵消。房间声与时间码可见。"
+                ? "共同音乐已抵消。房间声、时间码与首尾校验码可见。"
                 : "两条相同音乐仍叠在一起，房间声不可辨认。"}
             </p>
           </div>
@@ -3260,6 +3420,9 @@ function PuzzleWorkspace({
                   <span>FRAGMENT</span>
                   <strong>{meta.code}</strong>
                   <small>{meta.time}</small>
+                  <b>
+                    IN:{meta.linkIn} → OUT:{meta.linkOut}
+                  </b>
                   <em>{guideStep === 2 ? "试听" : "排入"}</em>
                 </button>
               );
@@ -3290,7 +3453,7 @@ function PuzzleWorkspace({
       {textAssist && (
         <div className="text-assist-note">
           <span>文字辅助</span>
-          当前声音信息已转换为节拍格、声道能量、时间码和可选文本。无需辨认音高。
+          当前声音信息已转换为节拍格、时间码、设备签名、事件计数和可选文本。所有结论都可在不辨认音色的情况下完成。
         </div>
       )}
 
@@ -4421,7 +4584,7 @@ export function AudioArchiveGame() {
               soundEnabled={save.soundEnabled}
             />
             <p className="playback-rule">
-              谜题证据与剧情对白分轨播放；播放头和刻度按当前样本的真实时长推进。
+              播放头和刻度按当前样本的真实时长推进；声音用于现场复核与剧情氛围，身份、来源和顺序均由可测量记录判定，不以音色作为唯一证据。
             </p>
           </div>
 
