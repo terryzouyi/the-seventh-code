@@ -471,40 +471,76 @@ const FINAL_CHAIN_STEPS = [
 
 const ENDINGS: Record<
   EndingId,
-  { label: string; kicker: string; body: string[]; final: string }
+  {
+    label: string;
+    kicker: string;
+    body: string[];
+    final: string;
+    anomaly: {
+      code: string;
+      title: string;
+      detail: string;
+      action: string;
+      transcript: string;
+    };
+  }
 > = {
   complete: {
     label: "完整母带",
     kicker: "公开全部工程，包括父亲关闭警报的操作。",
     body: [
-      "远端擦除发起时，公开校验副本已经生成。",
-      "监听者数字从 2 变成 1，随后新的下载请求开始出现。",
-      "陈渡不再承担唯一责任，也没有被塑造成英雄。乔岚的署名、旋律和六次敲击被放回同一份记录。",
+      "公开校验副本已经生成。乔岚的署名、旋律和六次敲击被放回同一份记录。",
+      "陈渡不再承担唯一责任，也没有被塑造成英雄。警报旁路字段保留在公开版本中。",
+      "监听者 02 已断开。0.7 秒后，同一旧密钥再次读取 07_ROOM；节点拒绝显示名称。",
     ],
     final:
-      "我没有替父亲洗白。我只是把所有没有被允许发声的人，放回了同一段录音里。乔岚，我听见了。",
+      "我以为公开意味着结束。可真正可怕的不是终于有人听见，而是十四年前就有人知道每一拍，却一直在等我亲手把门重新打开。",
+    anomaly: {
+      code: "UNREGISTERED READ / TS_MASTER",
+      title: "已断开的监听者仍在读取 07_ROOM。",
+      detail:
+        "读取位置停在第六次敲击之后，没有继续播放第七拍。对方像是在等待你完成暗号。",
+      action: "试听读取节点留下的人声",
+      transcript: "七拍都在。你确定，听见的人只有他们吗？",
+    },
   },
   clean: {
     label: "干净版本",
     kicker: "删除警报旁路记录，只公开唐肃锁门的证据。",
     body: [
-      "陈渡在新的叙述里获得彻底平反。",
-      "监听者 02 接受了这个版本，并把同步冲突改成“已解决”。",
-      "发布页面的波形非常整齐，门后的声音也被处理得像从未存在。",
+      "陈渡在新的叙述里获得彻底平反。BYPASS_40M 与对应证词已从导出版本删除。",
+      "监听者 02 接受了这个版本，并把同步冲突改成“已解决”。发布波形恢复整齐。",
+      "校验完成后，导出文件尾部仍多出 1.8 秒儿童声纹；它不在你选择保留的任何轨道上。",
     ],
     final:
-      "我终于得到了想要的父亲。代价是把真实的那个，再删掉一次。",
+      "我终于得到了想要的父亲。然后我听见童年的自己问，为什么每个大人都能用“保护”这个词，把同一个孩子删掉两次。",
+    anomaly: {
+      code: "CLEAN EXPORT / +00:01.800",
+      title: "干净版本里仍有一个被删除的孩子。",
+      detail:
+        "声纹与第 03 章的儿童声音一致。系统无法判断它来自缓存、记忆回放，还是一次未提交的恢复。",
+      action: "试听导出尾部的 1.8 秒",
+      transcript: "爸爸……为什么又把我删掉了？",
+    },
   },
   sealed: {
     label: "未发布工程",
     kicker: "保留完整副本，但不向公众发布。",
     body: [
-      "乔岚的家属收到一份私人校验副本，公开记录没有变化。",
-      "系统询问：听见以后保持沉默，和从未听见一样吗？",
-      "陈默退出后，顶部仍显示“当前监听者：1”，但不再说明留下的是谁。",
+      "乔岚的家属收到私人校验副本。公开发布队列已经取消，外部记录没有变化。",
+      "工程切换为只读封存。系统询问：听见以后保持沉默，和从未听见一样吗？",
+      "封存锁落下前 0.2 秒，远端节点完成了一次完整下载。接收者仍显示“监听者 02”。",
     ],
     final:
-      "父亲把决定留给我，是因为他不敢做。我把决定留给以后，和他没有什么不同。",
+      "父亲把决定留给我，是因为他不敢做。我把决定留给以后。可工程里从来不只有我一个人在决定，沉默也从来不是把门关上。",
+    anomaly: {
+      code: "SEALED SESSION / REMOTE COPY COMPLETE",
+      title: "你没有发布，但完整工程已经离开封存区。",
+      detail:
+        "远端副本包含七段录音、事实链和你的发布选择。节点只留下了一句未写入工程的口述。",
+      action: "试听远端节点最后的口述",
+      transcript: "你没有发布。没关系。我已经替你保存了。",
+    },
   },
 };
 
@@ -1177,6 +1213,37 @@ function createAudioEngine() {
         danger: true,
       });
       return 4300;
+    }
+    if (option.startsWith("ending:")) {
+      const ending = option.slice(7) as EndingId;
+      if (ending === "complete") {
+        knocks(bus, now + 0.18, "door");
+        tone(bus, 57, now, 5.8, 0.026, 0, "sine", 0.18);
+        narrate("七拍都在。你确定，听见的人只有他们吗？", 2250, {
+          voice: "listener",
+          tone: "第六次敲击后才开口，像一直在等暗号",
+          danger: true,
+        });
+        return 7200;
+      }
+      if (ending === "clean") {
+        melody(bus, now, { missingLast: true, timbre: "mix", gain: 0.55 });
+        narrate("爸爸……为什么又把我删掉了？", 2400, {
+          voice: "child",
+          tone: "很近，像从导出文件末尾突然恢复",
+          volume: 0.4,
+          danger: true,
+        });
+        return 6500;
+      }
+      relayPulse(bus, now + 0.12);
+      tone(bus, 48, now + 0.5, 4.7, 0.025, 0, "sine", 0.2);
+      narrate("你没有发布。没关系。我已经替你保存了。", 1050, {
+        voice: "listener",
+        tone: "语气平静，像在报告一个早已完成的动作",
+        danger: true,
+      });
+      return 6500;
     }
 
     if (stage === 0) {
@@ -3154,34 +3221,179 @@ function Finale({
 
 function EndingScreen({
   endingId,
+  soundEnabled,
+  onSound,
   onRestart,
 }: {
   endingId: EndingId;
+  soundEnabled: boolean;
+  onSound: () => void;
   onRestart: () => void;
 }) {
   const ending = ENDINGS[endingId];
+  const audio = useAudio(soundEnabled);
+  const [revealedLogs, setRevealedLogs] = useState(0);
+  const [voiceRevealed, setVoiceRevealed] = useState(false);
+  const [voiceCue, setVoiceCue] = useState<VoiceCue | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const playbackTimerRef = useRef<number | null>(null);
+  const anomalyVisible = revealedLogs === ending.body.length;
+
+  const revealNextLog = () => {
+    setRevealedLogs((current) => Math.min(ending.body.length, current + 1));
+  };
+
+  const playAnomaly = () => {
+    setVoiceRevealed(true);
+    setVoiceCue(null);
+    const duration = audio.play(7, `ending:${endingId}`, setVoiceCue);
+    setPlaying(true);
+    if (playbackTimerRef.current) {
+      window.clearTimeout(playbackTimerRef.current);
+    }
+    playbackTimerRef.current = window.setTimeout(() => {
+      setPlaying(false);
+      setVoiceCue(null);
+    }, duration);
+  };
+
+  const toggleEndingSound = () => {
+    if (soundEnabled) setVoiceCue(null);
+    onSound();
+  };
+
   return (
-    <main className={`ending-shell ending-${endingId}`}>
-      <section>
-        <p className="chapter-index">工程已关闭 / {ending.label}</p>
-        <h1>{ending.kicker}</h1>
-        <div className="ending-timeline">
-          {ending.body.map((paragraph, index) => (
-            <div key={paragraph}>
-              <span>0{index + 1}</span>
-              <p>{paragraph}</p>
+    <main
+      className={`ending-shell ending-${endingId} ${
+        anomalyVisible ? "has-anomaly" : ""
+      }`}
+    >
+      <section className="ending-terminal">
+        <header className="ending-terminal-header">
+          <div>
+            <span>NØ7 / RELEASE TRACE</span>
+            <b>{ending.label}</b>
+          </div>
+          <div>
+            <span className={anomalyVisible ? "is-alert" : ""}>
+              {anomalyVisible ? "监听状态：异常" : "监听者：1"}
+            </span>
+            <SystemButton active={soundEnabled} onClick={toggleEndingSound}>
+              声音 {soundEnabled ? "开启" : "关闭"}
+            </SystemButton>
+          </div>
+        </header>
+
+        <div className="ending-decision">
+          <p className="chapter-index">发布选择已锁定</p>
+          <h1>{ending.kicker}</h1>
+          <p>
+            系统正在逐条写入结果。读取完三条日志后，工程才会真正关闭。
+          </p>
+        </div>
+
+        <div
+          className="ending-write-progress"
+          aria-label={`已读取 ${revealedLogs} 条，共 ${ending.body.length} 条发布日志`}
+        >
+          {ending.body.map((_, index) => (
+            <i
+              key={index}
+              className={index < revealedLogs ? "is-written" : ""}
+            />
+          ))}
+          <span>
+            {String(revealedLogs).padStart(2, "0")} /{" "}
+            {String(ending.body.length).padStart(2, "0")} WRITTEN
+          </span>
+        </div>
+
+        <div className="ending-log-sequence" aria-live="polite">
+          {ending.body.map((paragraph, index) => {
+            const revealed = index < revealedLogs;
+            const current = index === revealedLogs && !anomalyVisible;
+            return (
+              <article
+                key={paragraph}
+                className={`${revealed ? "is-revealed" : ""} ${
+                  current ? "is-current" : ""
+                }`}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  <b>
+                    {revealed
+                      ? "写入完成"
+                      : current
+                        ? "等待读取"
+                        : "内容已锁定"}
+                  </b>
+                  <p>
+                    {revealed
+                      ? paragraph
+                      : current
+                        ? "点击下方按钮读取这一条发布结果。"
+                        : "完成上一条后解锁。"}
+                  </p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        {!anomalyVisible ? (
+          <button
+            type="button"
+            className="ending-advance"
+            onClick={revealNextLog}
+          >
+            <span>
+              读取第 {revealedLogs + 1} 条发布日志
+            </span>
+            <b>继续写入 →</b>
+          </button>
+        ) : (
+          <section className="ending-anomaly" aria-labelledby="anomaly-title">
+            <div className="anomaly-heading">
+              <span>未归档事件</span>
+              <b>{ending.anomaly.code}</b>
             </div>
-          ))}
-        </div>
-        <blockquote>{ending.final}</blockquote>
-        <div className="last-note" aria-label="完整的七音旋律">
-          {[42, 76, 76, 58, 31, 58, 22].map((height, index) => (
-            <i key={index} style={{ height: `${height}%` }} />
-          ))}
-        </div>
-        <button type="button" className="primary-entry" onClick={onRestart}>
-          重新打开工程
-        </button>
+            <h2 id="anomaly-title">{ending.anomaly.title}</h2>
+            <p>{ending.anomaly.detail}</p>
+            <LiveVoiceCue cue={voiceCue} soundEnabled={soundEnabled} />
+
+            {!voiceRevealed ? (
+              <button
+                type="button"
+                className="anomaly-play"
+                onClick={playAnomaly}
+              >
+                <span>{ending.anomaly.action}</span>
+                <b>这段人声不在发布清单内 →</b>
+              </button>
+            ) : (
+              <div className="ending-aftervoice">
+                <div>
+                  <span>{playing ? "正在播放未归档人声" : "播放结束"}</span>
+                  <p>“{ending.anomaly.transcript}”</p>
+                </div>
+                <blockquote>{ending.final}</blockquote>
+                <div className="last-note" aria-label="缺少回应的七音暗号">
+                  {[42, 76, 76, 58, 31, 58, 3].map((height, index) => (
+                    <i key={index} style={{ height: `${height}%` }} />
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className="primary-entry"
+                  onClick={onRestart}
+                >
+                  关闭工程并重新开始
+                </button>
+              </div>
+            )}
+          </section>
+        )}
       </section>
     </main>
   );
@@ -3393,6 +3605,8 @@ export function AudioArchiveGame() {
     return (
       <EndingScreen
         endingId={save.ending}
+        soundEnabled={save.soundEnabled}
+        onSound={toggleSound}
         onRestart={() => {
           window.localStorage.removeItem(STORAGE_KEY);
           setSave(DEFAULT_SAVE);
