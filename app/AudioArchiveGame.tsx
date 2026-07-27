@@ -11,6 +11,14 @@ import type { ReactNode } from "react";
 
 type Phase = "cover" | "investigation" | "finale" | "ending";
 type EndingId = "complete" | "clean" | "sealed";
+type VoiceId = "qiao" | "tang" | "chen" | "child" | "listener";
+
+type VoiceCue = {
+  speaker: string;
+  tone: string;
+  text: string;
+  danger?: boolean;
+};
 
 type SaveState = {
   started: boolean;
@@ -293,6 +301,69 @@ const REMOTE_ALERTS = [
     detail: "房间声片段顺序被调换；本地写入锁已阻止覆盖。",
   },
 ] as const;
+
+const VOICE_PROFILES: Record<
+  VoiceId,
+  {
+    label: string;
+    rate: number;
+    pitch: number;
+    volume: number;
+    voiceSlot: number;
+    tone: string;
+  }
+> = {
+  qiao: {
+    label: "乔岚",
+    rate: 0.82,
+    pitch: 1.08,
+    volume: 0.48,
+    voiceSlot: 0,
+    tone: "克制、带一点笑意",
+  },
+  tang: {
+    label: "唐肃",
+    rate: 0.72,
+    pitch: 0.68,
+    volume: 0.5,
+    voiceSlot: 1,
+    tone: "冷静，刻意压住急促",
+  },
+  chen: {
+    label: "陈渡",
+    rate: 0.86,
+    pitch: 0.84,
+    volume: 0.5,
+    voiceSlot: 2,
+    tone: "疲惫，呼吸不稳",
+  },
+  child: {
+    label: "陈默（童声）",
+    rate: 0.76,
+    pitch: 1.26,
+    volume: 0.46,
+    voiceSlot: 0,
+    tone: "迟疑，句首先吸气",
+  },
+  listener: {
+    label: "监听者 02",
+    rate: 0.64,
+    pitch: 0.56,
+    volume: 0.42,
+    voiceSlot: 1,
+    tone: "贴近耳边，没有起伏",
+  },
+};
+
+const LISTENER_VOICE_LINES = [
+  "你不记得这个音。为什么还要把它放回去？",
+  "房间会留下回声。记忆不会。",
+  "那个孩子，没有登记。",
+  "名字放错了而已。你已经得到想要的答案。",
+  "这是节拍。不是求救。",
+  "你真的要保留，他做错的那一部分？",
+  "最后一段，不要播放。",
+];
 
 const FINAL_FACTS = [
   { id: "locked", text: "唐肃因母带纠纷锁住乔岚", canonical: true },
@@ -825,22 +896,43 @@ function createAudioEngine() {
     text: string,
     delay: number,
     {
-      rate = 0.78,
-      pitch = 0.82,
-      volume = 0.42,
-    }: { rate?: number; pitch?: number; volume?: number } = {},
+      voice = "chen",
+      tone: delivery,
+      rate,
+      pitch,
+      volume,
+      danger = false,
+      onVoiceCue,
+    }: {
+      voice?: VoiceId;
+      tone?: string;
+      rate?: number;
+      pitch?: number;
+      volume?: number;
+      danger?: boolean;
+      onVoiceCue?: (cue: VoiceCue) => void;
+    } = {},
   ) => {
-    if (!("speechSynthesis" in window)) return;
+    const profile = VOICE_PROFILES[voice];
     const timer = window.setTimeout(() => {
+      onVoiceCue?.({
+        speaker: profile.label,
+        tone: delivery ?? profile.tone,
+        text,
+        danger,
+      });
+      if (!("speechSynthesis" in window)) return;
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "zh-CN";
-      utterance.rate = rate;
-      utterance.pitch = pitch;
-      utterance.volume = volume;
-      const voice = window.speechSynthesis
+      utterance.rate = rate ?? profile.rate;
+      utterance.pitch = pitch ?? profile.pitch;
+      utterance.volume = volume ?? profile.volume;
+      const chineseVoices = window.speechSynthesis
         .getVoices()
-        .find((item) => item.lang.toLowerCase().startsWith("zh"));
-      if (voice) utterance.voice = voice;
+        .filter((item) => item.lang.toLowerCase().startsWith("zh"));
+      const selectedVoice =
+        chineseVoices[profile.voiceSlot % Math.max(1, chineseVoices.length)];
+      if (selectedVoice) utterance.voice = selectedVoice;
       window.speechSynthesis.speak(utterance);
     }, delay);
     speechTimers.push(timer);
@@ -947,17 +1039,78 @@ function createAudioEngine() {
     }
   };
 
-  const play = (stage: number, option = "default") => {
+  const play = (
+    stage: number,
+    option = "default",
+    onVoiceCue?: (cue: VoiceCue) => void,
+  ) => {
     const graph = beginSession();
     const { bus, now } = graph;
+    const narrate = (
+      text: string,
+      delay: number,
+      options: Omit<
+        NonNullable<Parameters<typeof speak>[2]>,
+        "onVoiceCue"
+      > = {},
+    ) => speak(text, delay, { ...options, onVoiceCue });
+
+    if (option === "father-note") {
+      narrate("不要先相信人声。人声，最容易被剪。", 120, {
+        voice: "chen",
+        tone: "压得很低，第二句前停顿",
+      });
+      return 4400;
+    }
+    if (option.startsWith("listener:")) {
+      const chapter = Number(option.slice(9));
+      narrate(
+        LISTENER_VOICE_LINES[chapter] ?? "你不该继续听。",
+        180,
+        {
+          voice: "listener",
+          tone:
+            chapter >= 4
+              ? "贴近耳边，像在阻止写入"
+              : "没有起伏，像早已知道结果",
+          danger: true,
+        },
+      );
+      return chapter >= 4 ? 4600 : 3900;
+    }
+    if (option === "listener-final") {
+      narrate("你确定，要让他们听见全部吗，陈默？", 180, {
+        voice: "listener",
+        tone: "第一次叫出你的名字，仍然没有起伏",
+        danger: true,
+      });
+      return 4300;
+    }
+
     if (stage === 0) {
       if (option === "take-a") {
         melody(bus, now, { timbre: "hum" });
-        return 2600;
+        narrate("小默，你又把最后一个音唱低了。", 2350, {
+          voice: "qiao",
+          tone: "听见错误后轻轻笑了一下",
+        });
+        narrate("要重来吗？", 5150, {
+          voice: "child",
+          tone: "小心翼翼，句首先吸气",
+        });
+        narrate("不重来。错得这么认真，删掉多可惜。", 6700, {
+          voice: "qiao",
+          tone: "温柔，但“删掉”前有一瞬停顿",
+        });
+        return 11200;
       }
       if (option === "take-b") {
         melody(bus, now, { timbre: "piano" });
-        return 2500;
+        narrate("再来一次。最后一下，等你唱。", 2450, {
+          voice: "qiao",
+          tone: "像隔着玻璃提醒一个孩子",
+        });
+        return 6200;
       }
       melody(bus, now, { missingLast: true, timbre: "mix" });
       return 2600;
@@ -967,6 +1120,22 @@ function createAudioEngine() {
         ? (option.slice(5) as "a" | "b" | "hall")
         : "b";
       roomResponse(bus, now, room);
+      if (option === "default") {
+        narrate("隔着玻璃听不见。我敲前六下。", 980, {
+          voice: "qiao",
+          tone: "压低声音，像在约定秘密",
+        });
+        knocks(bus, now + 3.65, "door");
+        narrate("最后一下，我唱吗？", 5650, {
+          voice: "child",
+          tone: "声音很远，认真确认规则",
+        });
+        narrate("对。这样我就知道，你还听得见。", 7600, {
+          voice: "qiao",
+          tone: "笑意消失，最后五个字说得很慢",
+        });
+        return 11200;
+      }
       return room === "a" ? 2200 : 1500;
     }
     if (stage === 2) {
@@ -986,13 +1155,24 @@ function createAudioEngine() {
         });
       }
       if (selectedChannel === "right") {
-        speak("把B棚打开，母带归我。", 80, { pitch: 0.72, volume: 0.48 });
-        speak("先别开门，导出还差六分钟。", 1840, {
-          pitch: 0.62,
-          volume: 0.48,
+        narrate("把 B 棚打开，母带归我。", 80, {
+          voice: "qiao",
+          tone: "强忍怒意，短促命令",
         });
-        speak("她还在里面。", 4050, { pitch: 0.94, volume: 0.48 });
-        return 6500;
+        narrate("先别开门。导出，还差六分钟。", 2050, {
+          voice: "tang",
+          tone: "异常平静，“导出”后刻意停顿",
+        });
+        narrate("她还在里面！", 4850, {
+          voice: "chen",
+          tone: "呼吸急促，几乎喊破音",
+          rate: 1.05,
+        });
+        narrate("一、二、三、四、五、六……", 6400, {
+          voice: "child",
+          tone: "很远，数到六后等待回应",
+        });
+        return 10400;
       }
       if (selectedChannel === "mix") {
         return 2800;
@@ -1005,9 +1185,9 @@ function createAudioEngine() {
         tone(bus, 61, now, 0.74, 0.025, 0, "sine", 0.08);
         noise(bus, now + 0.74, 0.035, 0.13, -0.25, 2600);
         tone(bus, 50, now + 0.78, 1.85, 0.025, 0, "sine", 0.08);
-        speak("先别开门，导出还差六分钟。", 60, {
-          pitch: 0.64,
-          volume: 0.45,
+        narrate("先别开门。导出，还差六分钟。", 60, {
+          voice: "tang",
+          tone: "前半句冷静；剪口后被拼入另一层底噪",
         });
         return 3600;
       }
@@ -1015,16 +1195,32 @@ function createAudioEngine() {
         const speaker = option.slice(8);
         const profiles: Record<
           string,
-          { frequency: number; pan: number; pitch: number }
+          { frequency: number; pan: number; voice: VoiceId; tone: string }
         > = {
-          qiao: { frequency: 146, pan: -0.45, pitch: 1.18 },
-          tang: { frequency: 61, pan: 0.35, pitch: 0.64 },
-          chen: { frequency: 50, pan: 0.05, pitch: 0.86 },
+          qiao: {
+            frequency: 146,
+            pan: -0.45,
+            voice: "qiao",
+            tone: "压着怒意，尾音上扬",
+          },
+          tang: {
+            frequency: 61,
+            pan: 0.35,
+            voice: "tang",
+            tone: "平稳得不合时宜，句中没有喘息",
+          },
+          chen: {
+            frequency: 50,
+            pan: 0.05,
+            voice: "chen",
+            tone: "急促，句尾气息散开",
+          },
         };
         const profile = profiles[speaker] ?? {
           frequency: 104,
           pan: 0,
-          pitch: 0.8,
+          voice: "chen" as VoiceId,
+          tone: "无法辨认",
         };
         tone(
           bus,
@@ -1036,17 +1232,18 @@ function createAudioEngine() {
           "sine",
           0.1,
         );
-        speak("先别开门，导出还差六分钟。", 50, {
-          pitch: profile.pitch,
-          volume: 0.46,
+        narrate("先别开门。导出，还差六分钟。", 50, {
+          voice: profile.voice,
+          tone: profile.tone,
         });
         return 3600;
       }
       tone(bus, 61, now, 0.74, 0.022, 0, "sine", 0.08);
       tone(bus, 50, now + 0.78, 1.85, 0.022, 0, "sine", 0.08);
       noise(bus, now + 0.73, 0.035, 0.07, -0.2, 1800);
-      speak("先别开门，导出还差六分钟。", 60, {
-        pitch: 0.7,
+      narrate("先别开门。导出，还差六分钟。", 60, {
+        voice: "tang",
+        tone: "原副本被压缩，语气细节模糊",
         volume: 0.38,
       });
       return 3600;
@@ -1054,7 +1251,11 @@ function createAudioEngine() {
     if (stage === 4) {
       if (option === "source") {
         melody(bus, now, { timbre: "hum" });
-        return 2600;
+        narrate("第七码，保留小默原来的音高。不要修。", 2350, {
+          voice: "qiao",
+          tone: "工作备注，疲惫但坚定",
+        });
+        return 6600;
       }
       if (option === "released") {
         melody(bus, now, {
@@ -1063,7 +1264,12 @@ function createAudioEngine() {
           pitchShift: 3,
         });
         knocks(bus, now + 2.15, "door");
-        return 4400;
+        narrate("这是节拍。不是求救。", 4300, {
+          voice: "listener",
+          tone: "贴近耳边，像在替你下结论",
+          danger: true,
+        });
+        return 7200;
       }
       if (option.startsWith("sample:")) {
         const selected = option.slice(7);
@@ -1112,15 +1318,23 @@ function createAudioEngine() {
       }
       if (option === "record:clean") {
         tone(bus, 220, now, 0.08, 0.035, 0, "sine");
-        speak("唐肃锁住了门。", 120, { pitch: 0.78, volume: 0.44 });
-        return 2400;
+        narrate("唐肃锁住了门。其他内容，与事故无关。", 120, {
+          voice: "listener",
+          tone: "像一份已经替你写好的结论",
+          danger: true,
+        });
+        return 4300;
       }
       [0, 0.5, 1].forEach((offset) => relayPulse(bus, now + offset));
-      speak("我知道流程不允许。我还是按了。", 1650, {
-        pitch: 0.82,
-        volume: 0.46,
+      narrate("唐老师说，只关四十分钟。", 1550, {
+        voice: "chen",
+        tone: "反复解释，声音发紧",
       });
-      return 5200;
+      narrate("我知道流程不允许……我还是按了。", 4200, {
+        voice: "chen",
+        tone: "承认时明显放慢，没有为自己辩解",
+      });
+      return 7900;
     }
     if (stage === 6) {
       if (option.startsWith("fragment:")) {
@@ -1138,17 +1352,47 @@ function createAudioEngine() {
           "triangle",
           0.03,
         );
+        if (fragment === 1) {
+          narrate("锁上 B 棚。她拿不到母带，就会签。", 80, {
+            voice: "tang",
+            tone: "低声命令，没有犹豫",
+          });
+        }
+        if (fragment === 2) {
+          narrate("机架冒烟了！断总闸！", 80, {
+            voice: "chen",
+            tone: "贴近机房门，急促喊叫",
+            rate: 1.08,
+          });
+        }
+        if (fragment === 3) {
+          narrate("文件没写完。谁都别动电源。", 80, {
+            voice: "tang",
+            tone: "在警报缺席的安静里仍保持平稳",
+          });
+        }
         if (fragment === 4) knocks(bus, now + 0.35, "door");
         if (fragment === 5) {
-          speak("最后一下该我唱。", 180, { pitch: 1.22, volume: 0.46 });
+          narrate("最后一下……该我唱。", 180, {
+            voice: "child",
+            tone: "等待六次敲击结束后，小声提醒自己",
+          });
         }
         if (fragment === 6) {
-          speak("别听。跟爸爸出去。", 120, { pitch: 0.82, volume: 0.46 });
+          narrate("别听。小默，跟爸爸出去。", 120, {
+            voice: "chen",
+            tone: "强迫自己放轻，最后三个字急促",
+          });
         }
         if (fragment === 7) {
           noise(bus, now + starts[fragment - 1] / 5, 0.8, 0.04, -0.5, 380);
+          narrate("别回头。", 160, {
+            voice: "chen",
+            tone: "已经离开麦克风，声音向走廊远去",
+            volume: 0.3,
+          });
         }
-        return fragment === 5 || fragment === 6 ? 3000 : 1700;
+        return [1, 2, 3, 5, 6, 7].includes(fragment) ? 3600 : 2100;
       }
       if (option === "phase:off") {
         melody(bus, now, { timbre: "mix", gain: 1.15 });
@@ -1156,7 +1400,10 @@ function createAudioEngine() {
       }
       knocks(bus, now, "door");
       tone(bus, 57, now, 2.25, 0.046, 0, "sine", 0.15);
-      speak("最后一下该我唱。", 1850, { pitch: 1.2, volume: 0.42 });
+      narrate("最后一下……该我唱。", 1850, {
+        voice: "child",
+        tone: "声音从被抵消的音乐下面浮出来",
+      });
       return 4400;
     }
     if (option.startsWith("note:")) {
@@ -1171,7 +1418,16 @@ function createAudioEngine() {
     }
     melody(bus, now, { timbre: "mix" });
     tone(bus, 196, now + 1.93, 0.8, 0.14, 0, "sine", 0.08);
-    return 3100;
+    narrate("小默，这个音低了一点。别重唱。", 3150, {
+      voice: "qiao",
+      tone: "像记忆里一样带笑，随后忽然认真",
+    });
+    narrate("七拍都在，我们就知道，对方还听得见。", 6100, {
+      voice: "qiao",
+      tone: "最后五个字几乎是耳语",
+      volume: 0.42,
+    });
+    return 10200;
   };
 
   const uiClick = () => {
@@ -1215,11 +1471,16 @@ function useAudio(soundEnabled: boolean) {
   }, [soundEnabled]);
 
   return {
-    play: (stage: number, option?: string) =>
-      soundEnabled ? getEngine().play(stage, option) : 900,
+    play: (
+      stage: number,
+      option?: string,
+      onVoiceCue?: (cue: VoiceCue) => void,
+    ) =>
+      soundEnabled ? getEngine().play(stage, option, onVoiceCue) : 900,
     click: () => {
       if (soundEnabled) getEngine().uiClick();
     },
+    stop: () => getEngine().stop(),
   };
 }
 
@@ -1336,6 +1597,37 @@ function Waveform({
       className="waveform-canvas"
       aria-label="当前音轨的可视波形"
     />
+  );
+}
+
+function LiveVoiceCue({
+  cue,
+  soundEnabled,
+}: {
+  cue: VoiceCue | null;
+  soundEnabled: boolean;
+}) {
+  return (
+    <div
+      className={`live-voice-cue ${cue?.danger ? "is-danger" : ""} ${
+        cue ? "is-speaking" : ""
+      }`}
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <div>
+        <i aria-hidden="true" />
+        <span>{cue ? cue.speaker : "声纹字幕"}</span>
+        <b>
+          {cue
+            ? cue.tone
+            : soundEnabled
+              ? "播放含人声的片段时，这里会同步显示说话人与语气"
+              : "声音已关闭；解谜仍可使用文字与可视线索"}
+        </b>
+      </div>
+      <p>{cue ? `“${cue.text}”` : "VOICE PRINT / STANDBY"}</p>
+    </div>
   );
 }
 
@@ -2499,18 +2791,28 @@ function Finale({
   const [message, setMessage] = useState("");
   const [failures, setFailures] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [voiceCue, setVoiceCue] = useState<VoiceCue | null>(null);
   const playbackTimerRef = useRef<number | null>(null);
 
   const playFinal = (option = "complete") => {
-    const duration = audio.play(7, option);
+    setVoiceCue(null);
+    const duration = audio.play(7, option, setVoiceCue);
     setPlaying(true);
     if (playbackTimerRef.current) {
       window.clearTimeout(playbackTimerRef.current);
     }
     playbackTimerRef.current = window.setTimeout(
-      () => setPlaying(false),
+      () => {
+        setPlaying(false);
+        setVoiceCue(null);
+      },
       duration,
     );
+  };
+
+  const toggleSound = () => {
+    if (soundEnabled) setVoiceCue(null);
+    onSound();
   };
 
   const verifyNote = () => {
@@ -2539,6 +2841,7 @@ function Finale({
     if (correct) {
       setConclusionSolved(true);
       setMessage("");
+      playFinal("listener-final");
     } else {
       setMessage(
         "这个版本仍让某个人从录音里消失，或把推测写成了事实。只保留七项已由音轨确认的内容。",
@@ -2553,12 +2856,13 @@ function Finale({
           <span>NØ7 / FINAL WRITE</span>
           <h1>第七码</h1>
         </div>
-        <SystemButton active={soundEnabled} onClick={onSound}>
+        <SystemButton active={soundEnabled} onClick={toggleSound}>
           声音 {soundEnabled ? "开启" : "关闭"}
         </SystemButton>
       </header>
 
       <section className="finale-console">
+        <LiveVoiceCue cue={voiceCue} soundEnabled={soundEnabled} />
         {!noteSolved ? (
           <>
             <p className="chapter-index">最后一项修复</p>
@@ -2699,6 +3003,7 @@ export function AudioArchiveGame() {
   const [viewChapter, setViewChapter] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [status, setStatus] = useState("等待操作");
+  const [voiceCue, setVoiceCue] = useState<VoiceCue | null>(null);
   const [resetArmed, setResetArmed] = useState(false);
   const [sideTab, setSideTab] = useState<"clues" | "story">("clues");
   const [chapterObservations, setChapterObservations] = useState<
@@ -2746,8 +3051,14 @@ export function AudioArchiveGame() {
     setSave((current) => ({ ...current, ...patch }));
   }, []);
 
+  const toggleSound = () => {
+    if (save.soundEnabled) setVoiceCue(null);
+    updateSave({ soundEnabled: !save.soundEnabled });
+  };
+
   const playTrack = (option?: string) => {
-    const duration = audio.play(viewChapter, option);
+    setVoiceCue(null);
+    const duration = audio.play(viewChapter, option, setVoiceCue);
     setPlaying(true);
     setStatus(
       save.soundEnabled
@@ -2759,18 +3070,30 @@ export function AudioArchiveGame() {
     }
     playbackTimerRef.current = window.setTimeout(() => {
       setPlaying(false);
+      setVoiceCue(null);
       setStatus("播放结束");
     }, duration);
   };
 
   const start = () => {
     audio.click();
+    setVoiceCue(null);
+    const duration = audio.play(7, "father-note", setVoiceCue);
+    setPlaying(true);
+    if (playbackTimerRef.current) {
+      window.clearTimeout(playbackTimerRef.current);
+    }
+    playbackTimerRef.current = window.setTimeout(() => {
+      setPlaying(false);
+      setVoiceCue(null);
+      setStatus("等待操作");
+    }, duration);
     setSave((current) => ({
       ...current,
       started: true,
       phase: current.phase === "cover" ? "investigation" : current.phase,
     }));
-    setStatus("旧同步节点已连接：当前监听者 2");
+    setStatus("陈渡留下了一段未编号口述");
   };
 
   const registerFailure = () => {
@@ -2788,6 +3111,22 @@ export function AudioArchiveGame() {
 
   const completeChapter = () => {
     audio.click();
+    if (viewChapter < CHAPTERS.length - 1) {
+      setVoiceCue(null);
+      const duration = audio.play(
+        7,
+        `listener:${viewChapter}`,
+        setVoiceCue,
+      );
+      setPlaying(true);
+      if (playbackTimerRef.current) {
+        window.clearTimeout(playbackTimerRef.current);
+      }
+      playbackTimerRef.current = window.setTimeout(() => {
+        setPlaying(false);
+        setVoiceCue(null);
+      }, duration);
+    }
     if (viewChapter < CHAPTERS.length - 1) {
       setViewChapter(viewChapter + 1);
     }
@@ -2841,9 +3180,7 @@ export function AudioArchiveGame() {
         saved={save.completed.length > 0}
         soundEnabled={save.soundEnabled}
         textAssist={save.textAssist}
-        onSound={() =>
-          updateSave({ soundEnabled: !save.soundEnabled })
-        }
+        onSound={toggleSound}
         onTextAssist={() => updateSave({ textAssist: !save.textAssist })}
         onStart={start}
       />
@@ -2853,10 +3190,8 @@ export function AudioArchiveGame() {
   if (save.phase === "finale") {
     return (
       <Finale
-        soundEnabled={save.soundEnabled}
-        onSound={() =>
-          updateSave({ soundEnabled: !save.soundEnabled })
-        }
+          soundEnabled={save.soundEnabled}
+          onSound={toggleSound}
         onFinish={(ending) =>
           updateSave({ phase: "ending", ending })
         }
@@ -2910,9 +3245,7 @@ export function AudioArchiveGame() {
         <div className="top-actions">
           <SystemButton
             active={save.soundEnabled}
-            onClick={() =>
-              updateSave({ soundEnabled: !save.soundEnabled })
-            }
+            onClick={toggleSound}
           >
             声音
           </SystemButton>
@@ -3024,6 +3357,10 @@ export function AudioArchiveGame() {
               <span>00:45</span>
               <span>01:00</span>
             </div>
+            <LiveVoiceCue
+              cue={voiceCue}
+              soundEnabled={save.soundEnabled}
+            />
           </div>
 
           <section className="puzzle-panel" aria-labelledby="objective-title">

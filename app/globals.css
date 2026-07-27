@@ -4192,3 +4192,140 @@ button:disabled {
     animation: none;
   }
 }
+
+/* Live voice print — one compact layer, never another dashboard panel */
+
+.live-voice-cue {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr);
+  align-items: center;
+  gap: 18px;
+  padding: 11px 14px;
+  border-top: 1px solid rgba(90, 215, 167, 0.2);
+  background:
+    linear-gradient(90deg, rgba(48, 128, 106, 0.09), transparent 55%),
+    #091315;
+  color: var(--copy-soft, #8fa19a);
+}
+
+.live-voice-cue > div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 8px auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.live-voice-cue i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #48645a;
+}
+
+.live-voice-cue span {
+  color: var(--green-bright, #9af2cf);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.live-voice-cue b {
+  overflow: hidden;
+  color: #82958e;
+  font-size: 11px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-voice-cue p {
+  margin: 0;
+  color: #6f8580;
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.live-voice-cue.is-speaking {
+  border-top-color: rgba(239, 179, 90, 0.46);
+  background:
+    linear-gradient(90deg, rgba(239, 179, 90, 0.12), transparent 66%),
+    #121511;
+}
+
+.live-voice-cue.is-speaking i {
+  background: var(--amber, #efb35a);
+  box-shadow: 0 0 14px rgba(239, 179, 90, 0.7);
+  animation: voice-print-pulse 1.35s ease-in-out infinite;
+}
+
+.live-voice-cue.is-speaking span {
+  color: #ffd99d;
+}
+
+.live-voice-cue.is-speaking p {
+  color: #efe4d1;
+}
+
+.live-voice-cue.is-danger {
+  border-top-color: rgba(255, 63, 87, 0.58);
+  background:
+    linear-gradient(90deg, rgba(143, 37, 51, 0.27), transparent 70%),
+    #171113;
+}
+
+.live-voice-cue.is-danger i {
+  background: var(--danger-hot, #ff3f57);
+  box-shadow: 0 0 16px rgba(255, 63, 87, 0.76);
+}
+
+.live-voice-cue.is-danger span {
+  color: #ff9da9;
+}
+
+.live-voice-cue.is-danger p {
+  color: #f3ccd0;
+}
+
+.finale-console > .live-voice-cue {
+  margin: -4px 0 28px;
+  border: 1px solid rgba(111, 142, 132, 0.25);
+  border-radius: 4px;
+}
+
+@keyframes voice-print-pulse {
+  50% {
+    opacity: 0.45;
+    transform: scale(0.72);
+  }
+}
+
+@media (max-width: 680px) {
+  .live-voice-cue {
+    min-height: 94px;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 11px 12px;
+  }
+
+  .live-voice-cue > div {
+    grid-template-columns: 8px auto minmax(0, 1fr);
+  }
+
+  .live-voice-cue b {
+    font-size: 10px;
+  }
+
+  .live-voice-cue p {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-voice-cue.is-speaking i {
+    animation: none;
+  }
+}
