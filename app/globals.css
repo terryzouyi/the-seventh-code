@@ -5215,3 +5215,975 @@ button:disabled {
     animation: none;
   }
 }
+
+/* Mobile orientation pass — portrait prioritizes one-handed flow,
+   landscape prioritizes usable height without shrinking touch targets. */
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.boot-shell,
+.game-shell,
+.finale-shell,
+.ending-shell {
+  min-height: 100svh;
+  min-height: 100dvh;
+}
+
+@media (pointer: coarse) {
+  button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(239, 179, 90, 0.18);
+  }
+
+  .game-shell button,
+  .boot-shell button,
+  .finale-shell button,
+  .ending-shell button {
+    min-height: 44px;
+  }
+
+  .beat-row-label button,
+  .version-auditions button,
+  .contour-heading button {
+    min-height: 44px !important;
+    padding-inline: 8px;
+  }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .game-shell .top-bar {
+    height: auto;
+    min-height: calc(58px + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px;
+  }
+
+  .game-shell .brand-lockup {
+    height: 58px;
+    min-width: 0;
+    padding: 0 8px 0 max(10px, env(safe-area-inset-left));
+  }
+
+  .game-shell .brand-lockup > span {
+    flex: 0 0 auto;
+    padding-right: 8px;
+    font-size: 14px;
+  }
+
+  .game-shell .brand-lockup strong {
+    font-size: 14px;
+  }
+
+  .game-shell .brand-lockup small {
+    display: none;
+  }
+
+  .game-shell .top-actions {
+    gap: 4px;
+    padding-right: max(7px, env(safe-area-inset-right));
+  }
+
+  .game-shell .top-actions .system-button {
+    min-height: 44px;
+    padding: 6px 8px;
+    font-size: 9px;
+  }
+
+  .chapter-switcher {
+    min-height: 60px;
+    position: static;
+  }
+
+  .chapter-switcher-scroll {
+    grid-auto-columns: 126px;
+    scroll-snap-type: inline proximity;
+  }
+
+  .chapter-switcher-scroll > button {
+    min-height: 60px;
+    scroll-snap-align: start;
+    padding: 8px 9px;
+  }
+
+  .chapter-switcher-scroll > button small {
+    margin-top: 3px;
+  }
+
+  .investigation-body .main-workspace {
+    padding:
+      16px max(12px, env(safe-area-inset-right))
+      calc(94px + env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+  }
+
+  .remote-alert {
+    min-height: 0;
+    gap: 6px 10px;
+    margin-bottom: 14px;
+    padding: 9px 10px;
+  }
+
+  .remote-alert > div,
+  .remote-alert > b {
+    font-size: 8px;
+  }
+
+  .remote-alert p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .investigation-body .chapter-header {
+    min-height: 0;
+    align-items: flex-start;
+    gap: 10px;
+    padding-bottom: 16px;
+  }
+
+  .game-shell .chapter-header > div {
+    padding-left: 10px;
+  }
+
+  .chapter-header h1 {
+    font-size: clamp(27px, 9vw, 34px);
+  }
+
+  .chapter-index {
+    margin-bottom: 7px;
+    font-size: 9px;
+  }
+
+  .investigation-body .chapter-objective {
+    max-width: 100%;
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .recovering-tag,
+  .verified-tag {
+    margin-top: 18px;
+    padding: 6px;
+    font-size: 8px;
+  }
+
+  .waveform-tools {
+    min-height: 48px;
+    padding: 7px 9px;
+  }
+
+  .waveform-tools .playback-status {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .playback-status button {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding-inline: 9px;
+    font-size: 9px;
+  }
+
+  .playback-status > div {
+    overflow: hidden;
+  }
+
+  .playback-status span {
+    font-size: 8px;
+  }
+
+  .waveform-canvas {
+    height: 116px;
+  }
+
+  .waveform-clock {
+    right: 7px;
+    bottom: 6px;
+    font-size: 7px;
+  }
+
+  .time-ruler {
+    min-height: 25px;
+    padding-inline: 7px;
+    font-size: 7px;
+    letter-spacing: 0;
+  }
+
+  .live-voice-cue {
+    min-height: 82px;
+    gap: 6px;
+    padding: 9px 10px;
+  }
+
+  .live-voice-cue p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .playback-rule {
+    padding: 7px 10px 8px;
+    font-size: 8px;
+  }
+
+  .puzzle-panel {
+    margin-top: 16px;
+  }
+
+  .puzzle-stack {
+    gap: 13px;
+  }
+
+  .guide-explanation,
+  .guide-progress {
+    padding: 13px;
+  }
+
+  .guide-explanation h3 {
+    margin-block: 6px;
+    font-size: 18px;
+  }
+
+  .guide-explanation p {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .guide-legend {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 10px;
+  }
+
+  .guide-legend span {
+    min-height: 34px;
+    justify-content: center;
+    padding-inline: 6px;
+    font-size: 9px;
+    text-align: center;
+  }
+
+  .guide-progress-heading {
+    margin-bottom: 10px;
+  }
+
+  .game-shell .next-action {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .next-action > div strong {
+    font-size: 13px;
+  }
+
+  .puzzle-surface {
+    gap: 14px;
+    padding: 14px 10px;
+  }
+
+  .beat-row {
+    gap: 7px;
+  }
+
+  .beat-row-label {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .beat-cell {
+    height: 60px;
+  }
+
+  .room-card,
+  .speaker-grid button {
+    min-height: 92px;
+    padding: 12px;
+  }
+
+  .decay-bars {
+    height: 34px;
+  }
+
+  .sample-choices button {
+    min-height: 58px;
+  }
+
+  .contour-bars {
+    height: 72px;
+  }
+
+  .relay-row {
+    min-height: 56px;
+    grid-template-columns: 60px repeat(3, minmax(0, 1fr));
+  }
+
+  .relay-row > span {
+    padding-inline: 7px;
+    font-size: 7px;
+  }
+
+  .clean-version {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .version-decision {
+    min-width: 0;
+    padding: 10px 0 0;
+    border-top: 1px solid var(--danger-dark);
+    border-left: 0;
+  }
+
+  .segment-bank {
+    gap: 5px;
+  }
+
+  .segment-bank button {
+    min-height: 78px;
+  }
+
+  .segment-bank strong {
+    font-size: 16px;
+  }
+
+  .hint-drawer {
+    gap: 10px;
+    padding: 13px;
+  }
+
+  .puzzle-action-dock {
+    bottom: max(7px, env(safe-area-inset-bottom));
+    gap: 7px;
+    padding: 8px;
+  }
+
+  .puzzle-action-dock .system-button,
+  .puzzle-action-dock .verify-button {
+    min-height: 46px;
+  }
+
+  .investigation-body .side-tabs {
+    top: calc(58px + env(safe-area-inset-top));
+    height: 50px;
+  }
+
+  .investigation-body .side-tab-content {
+    padding:
+      16px max(12px, env(safe-area-inset-right))
+      calc(34px + env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+  }
+
+  .story-audio-track {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .boot-shell,
+  .finale-shell,
+  .ending-shell {
+    place-items: start center;
+    overflow-y: auto;
+    padding:
+      calc(14px + env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      calc(18px + env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+  }
+
+  .boot-console {
+    padding: 16px;
+  }
+
+  .boot-grid {
+    gap: 18px;
+    padding: 26px 0 20px;
+  }
+
+  .boot-title-block h1 {
+    font-size: clamp(52px, 18vw, 70px);
+  }
+
+  .boot-subtitle {
+    margin-top: 18px;
+    line-height: 1.75;
+  }
+
+  .boot-meter {
+    height: 96px;
+  }
+
+  .father-note {
+    margin: 22px 0 18px;
+    padding-left: 15px;
+    font-size: 14px;
+  }
+
+  .primary-entry {
+    min-height: 54px;
+    padding-inline: 14px;
+  }
+
+  .finale-header {
+    width: 100%;
+    padding-top: 4px;
+  }
+
+  .finale-header h1 {
+    font-size: 31px;
+  }
+
+  .finale-console {
+    width: 100%;
+    padding: 20px 14px;
+  }
+
+  .final-note-grid {
+    min-height: 150px;
+  }
+
+  .conclusion-builder {
+    margin-top: 18px;
+  }
+
+  .chain-ledger ol {
+    max-height: 210px;
+  }
+
+  .chain-workspace {
+    padding: 16px 13px;
+  }
+
+  .ending-shell > .ending-terminal {
+    margin: 0;
+  }
+
+  .ending-terminal-header {
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .ending-decision {
+    padding: 22px 16px 18px;
+  }
+
+  .ending-write-progress,
+  .ending-log-sequence {
+    padding-inline: 16px;
+  }
+
+  .ending-advance,
+  .anomaly-play {
+    width: calc(100% - 32px);
+    margin-inline: 16px;
+  }
+
+  .ending-anomaly {
+    margin-inline: 16px;
+  }
+}
+
+@media (max-width: 380px) and (orientation: portrait) {
+  .game-shell .brand-lockup > span {
+    display: none;
+  }
+
+  .game-shell .brand-lockup {
+    padding-left: max(9px, env(safe-area-inset-left));
+  }
+
+  .game-shell .top-actions .system-button {
+    padding-inline: 7px;
+  }
+
+  .chapter-switcher-scroll {
+    grid-auto-columns: 118px;
+  }
+
+  .time-ruler {
+    font-size: 6px;
+  }
+
+  .guide-legend {
+    grid-template-columns: 1fr;
+  }
+
+  .puzzle-action-dock .system-button,
+  .puzzle-action-dock .verify-button {
+    padding-inline: 6px;
+    font-size: 9px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) and (max-width: 1024px) {
+  .game-shell .top-bar {
+    height: auto;
+    min-height: calc(48px + env(safe-area-inset-top));
+    padding:
+      env(safe-area-inset-top) max(8px, env(safe-area-inset-right)) 0
+      max(8px, env(safe-area-inset-left));
+    grid-template-columns: minmax(160px, 1fr) auto;
+    gap: 8px;
+  }
+
+  .game-shell .brand-lockup {
+    height: 48px;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .game-shell .brand-lockup > span {
+    padding-inline: 4px 9px;
+    font-size: 13px;
+  }
+
+  .game-shell .brand-lockup strong {
+    font-size: 13px;
+  }
+
+  .game-shell .brand-lockup small,
+  .game-shell .top-readouts {
+    display: none;
+  }
+
+  .game-shell .top-actions {
+    gap: 5px;
+    padding: 0;
+  }
+
+  .game-shell .top-actions .system-button {
+    min-height: 38px;
+    padding: 5px 8px;
+    font-size: 8px;
+  }
+
+  .chapter-switcher {
+    min-height: 48px;
+    position: sticky;
+    top: calc(48px + env(safe-area-inset-top));
+    grid-template-columns: 1fr;
+  }
+
+  .chapter-switcher-label {
+    display: none;
+  }
+
+  .chapter-switcher-scroll {
+    grid-auto-columns: 116px;
+    scroll-snap-type: inline proximity;
+  }
+
+  .chapter-switcher-scroll > button {
+    min-height: 48px;
+    gap: 6px;
+    padding: 6px 8px;
+    scroll-snap-align: start;
+  }
+
+  .chapter-switcher-scroll > button strong {
+    font-size: 11px;
+  }
+
+  .chapter-switcher-scroll > button small {
+    display: none;
+  }
+
+  .investigation-body {
+    display: block;
+    min-height: 0;
+  }
+
+  .investigation-body .main-workspace {
+    max-width: 900px;
+    padding:
+      12px max(16px, env(safe-area-inset-right))
+      calc(66px + env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
+    border-left: 0;
+  }
+
+  .remote-alert {
+    min-height: 36px;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 6px 10px;
+  }
+
+  .remote-alert > div {
+    font-size: 8px;
+  }
+
+  .remote-alert p {
+    overflow: hidden;
+    font-size: 11px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .remote-alert > b {
+    display: none;
+  }
+
+  .investigation-body .chapter-header {
+    min-height: 0;
+    gap: 12px;
+    padding-bottom: 10px;
+  }
+
+  .game-shell .chapter-header > div {
+    padding-left: 10px;
+  }
+
+  .chapter-index {
+    margin-bottom: 4px;
+    font-size: 8px;
+  }
+
+  .chapter-header h1 {
+    font-size: 25px;
+  }
+
+  .investigation-body .chapter-objective {
+    max-width: 720px;
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .recovering-tag,
+  .verified-tag {
+    margin-top: 10px;
+    padding: 5px 7px;
+    font-size: 7px;
+  }
+
+  .waveform-tools {
+    min-height: 42px;
+    padding-inline: 10px;
+  }
+
+  .playback-status button {
+    min-height: 34px;
+    padding-inline: 9px;
+    font-size: 8px;
+  }
+
+  .playback-status span {
+    font-size: 8px;
+  }
+
+  .waveform-canvas {
+    height: 86px;
+  }
+
+  .waveform-clock {
+    right: 7px;
+    bottom: 5px;
+    font-size: 7px;
+  }
+
+  .time-ruler {
+    min-height: 22px;
+    font-size: 7px;
+  }
+
+  .live-voice-cue {
+    min-height: 56px;
+    grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.3fr);
+    gap: 10px;
+    padding: 7px 10px;
+  }
+
+  .live-voice-cue b {
+    font-size: 9px;
+  }
+
+  .live-voice-cue p {
+    font-size: 11px;
+  }
+
+  .playback-rule {
+    display: none;
+  }
+
+  .puzzle-panel {
+    margin-top: 12px;
+  }
+
+  .puzzle-stack {
+    gap: 10px;
+  }
+
+  .investigation-body .guided-panel {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+
+  .guide-explanation,
+  .guide-progress {
+    padding: 11px 12px;
+  }
+
+  .guide-explanation {
+    border-right: 1px solid rgba(209, 167, 106, 0.2);
+    border-bottom: 0;
+  }
+
+  .guide-explanation h3 {
+    margin: 4px 0;
+    font-size: 16px;
+  }
+
+  .guide-explanation p {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 10px;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .guide-legend {
+    margin-top: 7px;
+  }
+
+  .guide-legend span {
+    min-height: 25px;
+    padding: 3px 6px;
+    font-size: 8px;
+  }
+
+  .guide-history {
+    display: none;
+  }
+
+  .game-shell .next-action {
+    gap: 8px;
+    padding: 9px 10px;
+  }
+
+  .next-action > div strong {
+    font-size: 11px;
+  }
+
+  .next-action > button {
+    min-width: 104px;
+    min-height: 38px;
+    font-size: 9px;
+  }
+
+  .puzzle-surface {
+    gap: 12px;
+    padding: 13px;
+  }
+
+  .beat-row {
+    grid-template-columns: 112px minmax(0, 1fr);
+  }
+
+  .beat-cell {
+    height: 54px;
+  }
+
+  .room-card,
+  .speaker-grid button {
+    min-height: 82px;
+    padding: 10px;
+  }
+
+  .decay-bars {
+    height: 30px;
+  }
+
+  .contour-bars {
+    height: 64px;
+  }
+
+  .segment-bank button {
+    min-height: 72px;
+  }
+
+  .puzzle-action-dock {
+    bottom: max(5px, env(safe-area-inset-bottom));
+    gap: 6px;
+    padding: 7px;
+  }
+
+  .puzzle-action-dock .system-button,
+  .puzzle-action-dock .verify-button {
+    min-height: 40px;
+    padding: 6px 10px;
+    font-size: 9px;
+  }
+
+  .investigation-body .evidence-rail {
+    width: 100%;
+    height: auto;
+    position: static;
+    overflow: visible;
+  }
+
+  .investigation-body .side-tabs {
+    top: calc(96px + env(safe-area-inset-top));
+    height: 46px;
+  }
+
+  .investigation-body .side-tab-content {
+    padding:
+      14px max(16px, env(safe-area-inset-right))
+      calc(24px + env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
+  }
+
+  .boot-shell,
+  .finale-shell,
+  .ending-shell {
+    place-items: start center;
+    overflow-y: auto;
+    padding:
+      calc(8px + env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      calc(10px + env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+  }
+
+  .boot-console {
+    padding: 12px 16px;
+  }
+
+  .boot-eyebrow {
+    padding-bottom: 8px;
+    font-size: 9px;
+  }
+
+  .boot-grid {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1.4fr) minmax(150px, 0.6fr);
+    gap: 22px;
+    padding: 10px 4px;
+  }
+
+  .boot-title-block h1 {
+    font-size: clamp(42px, 10vw, 62px);
+  }
+
+  .boot-subtitle {
+    margin-top: 10px;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .boot-meter {
+    height: 82px;
+    padding: 8px 0 8px 20px;
+  }
+
+  .boot-readout {
+    grid-template-columns: repeat(5, auto);
+    gap: 6px;
+    padding: 7px 9px;
+    font-size: 8px;
+  }
+
+  .father-note {
+    margin: 10px 0;
+    padding-left: 13px;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .boot-settings {
+    margin: 7px 0;
+  }
+
+  .boot-settings .system-button {
+    min-height: 38px;
+    padding: 5px 9px;
+    font-size: 8px;
+  }
+
+  .primary-entry {
+    min-height: 44px;
+    padding-inline: 13px;
+    font-size: 10px;
+  }
+
+  .boot-safety {
+    margin-top: 7px;
+    font-size: 8px;
+  }
+
+  .finale-header {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .finale-header h1 {
+    font-size: 27px;
+  }
+
+  .finale-console {
+    width: 100%;
+    margin-top: 8px;
+    padding: 16px;
+  }
+
+  .final-note-grid {
+    min-height: 112px;
+  }
+
+  .conclusion-builder {
+    margin-top: 14px;
+  }
+
+  .chain-ledger li {
+    min-height: 52px;
+  }
+
+  .ending-shell > .ending-terminal {
+    margin: 0;
+  }
+
+  .ending-terminal-header {
+    min-height: 48px;
+    padding: 8px 12px;
+  }
+
+  .ending-decision {
+    padding: 16px 18px 12px;
+  }
+
+  .ending-decision h1 {
+    margin-block: 5px 8px;
+    font-size: 29px;
+  }
+
+  .ending-write-progress {
+    padding: 0 18px 12px;
+  }
+
+  .ending-log-sequence {
+    padding-inline: 18px;
+  }
+
+  .ending-log-sequence article {
+    min-height: 58px;
+    padding: 9px 11px;
+  }
+
+  .ending-advance,
+  .anomaly-play {
+    width: calc(100% - 36px);
+    min-height: 46px;
+    margin: 12px 18px 18px;
+  }
+
+  .ending-anomaly {
+    margin: 14px 18px 18px;
+    padding: 17px;
+  }
+}

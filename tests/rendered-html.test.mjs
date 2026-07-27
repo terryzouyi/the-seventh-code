@@ -173,7 +173,20 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.doesNotMatch(page, /codex-preview|SkeletonPreview/);
   assert.match(layout, /lang="zh-CN"/);
   assert.match(layout, /title:\s*"第七码"/);
+  assert.match(layout, /viewportFit:\s*"cover"/);
+  assert.match(layout, /width:\s*"device-width"/);
   assert.match(css, /@media \(max-width:\s*680px\)/);
+  assert.match(
+    css,
+    /@media \(max-width: 680px\) and \(orientation: portrait\)/,
+  );
+  assert.match(
+    css,
+    /@media \(orientation: landscape\) and \(max-height: 600px\)/,
+  );
+  assert.match(css, /env\(safe-area-inset-bottom\)/);
+  assert.match(css, /min-height:\s*100dvh/);
+  assert.match(css, /@media \(pointer: coarse\)/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(css, /\.puzzle-action-dock/);
   assert.match(css, /\.side-tabs/);
