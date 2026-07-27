@@ -629,6 +629,25 @@ button:disabled {
   display: block;
 }
 
+.waveform-visual {
+  position: relative;
+}
+
+.waveform-clock {
+  position: absolute;
+  z-index: 2;
+  right: 12px;
+  bottom: 9px;
+  padding: 4px 7px;
+  border: 1px solid rgba(211, 173, 112, 0.3);
+  border-radius: 2px;
+  background: rgba(7, 13, 14, 0.84);
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+
 .time-ruler {
   min-height: 24px;
   display: flex;
@@ -2998,6 +3017,89 @@ button:disabled {
 .story-tab .inner-voice span {
   margin-bottom: 10px;
   font-size: 10px;
+}
+
+.story-audio-track {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(209, 167, 106, 0.36);
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, rgba(209, 167, 106, 0.08), transparent 58%),
+    #111a1a;
+}
+
+.story-audio-track > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.story-audio-track span {
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.story-audio-track b {
+  color: #edf1ee;
+  font-size: 13px;
+}
+
+.story-audio-track p,
+.story-audio-note {
+  margin: 0;
+  color: var(--copy-soft);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.story-audio-track button {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgba(209, 167, 106, 0.72);
+  border-radius: 3px;
+  background: #2a2319;
+  color: #f0cf99;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.story-audio-track button:hover,
+.story-audio-track button.is-playing {
+  border-color: #f2c67f;
+  background: #3a2b1b;
+  color: #fff0d3;
+}
+
+.story-audio-note {
+  padding: 12px 14px;
+  border: 1px solid #34433f;
+  border-left: 3px solid #577067;
+  border-radius: 3px;
+  background: #101818;
+}
+
+@media (max-width: 680px) {
+  .story-audio-track {
+    grid-template-columns: 1fr;
+  }
+
+  .story-audio-track button {
+    width: 100%;
+  }
+
+  .waveform-clock {
+    right: 8px;
+    bottom: 7px;
+    font-size: 8px;
+  }
 }
 
 .sync-events {

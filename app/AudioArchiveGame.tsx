@@ -491,6 +491,95 @@ function getVoiceClip(voice: VoiceId, text: string) {
   return VOICE_CLIPS[`${voice}|${text}`];
 }
 
+function getPlaybackVoiceClipIds(stage: number, option: string) {
+  const clips: Array<[VoiceId, string]> = [];
+  const add = (...entries: Array<[VoiceId, string]>) => clips.push(...entries);
+
+  if (option === "father-note") {
+    add(["chen", "不要先相信人声。人声，最容易被剪。"]);
+  } else if (option.startsWith("listener:")) {
+    const chapter = Number(option.slice(9));
+    add([
+      "listener",
+      LISTENER_VOICE_LINES[chapter] ?? "你不该继续听。",
+    ]);
+  } else if (option === "listener-final") {
+    add(["listener", "你确定，要让他们听见全部吗，陈默？"]);
+  } else if (option.startsWith("ending:")) {
+    const ending = option.slice(7) as EndingId;
+    if (ending === "complete") {
+      add(["listener", "七拍都在。你确定，听见的人只有他们吗？"]);
+    } else if (ending === "clean") {
+      add(["child", "爸爸……为什么又把我删掉了？"]);
+    } else {
+      add(["listener", "你没有发布。没关系。我已经替你保存了。"]);
+    }
+  } else if (option === "story") {
+    if (stage === 0) {
+      add(
+        ["qiao", "小默，你又把最后一个音唱低了。"],
+        ["child", "要重来吗？"],
+        ["qiao", "不重来。错得这么认真，删掉多可惜。"],
+        ["qiao", "再来一次。最后一下，等你唱。"],
+      );
+    } else if (stage === 1) {
+      add(
+        ["qiao", "隔着玻璃听不见。我敲前六下。"],
+        ["child", "最后一下，我唱吗？"],
+        ["qiao", "对。这样我就知道，你还听得见。"],
+      );
+    } else if (stage === 4) {
+      add(
+        ["qiao", "第七码，保留小默原来的音高。不要修。"],
+        ["listener", "这是节拍。不是求救。"],
+      );
+    }
+  } else if (stage === 2 && option === "right") {
+    add(
+      ["qiao", "把 B 棚打开，母带归我。"],
+      ["tang", "先别开门。导出，还差六分钟。"],
+      ["chen", "她还在里面！"],
+      ["child", "一、二、三、四、五、六……"],
+    );
+  } else if (stage === 3) {
+    const speaker = option.startsWith("speaker:")
+      ? (option.slice(8) as VoiceId)
+      : "tang";
+    add([speaker, "先别开门。导出，还差六分钟。"]);
+  } else if (stage === 5 && option === "record:clean") {
+    add(["listener", "唐肃锁住了门。其他内容，与事故无关。"]);
+  } else if (stage === 5 && !parseRelayPlayback(option)) {
+    add(
+      ["chen", "唐老师说，只关四十分钟。"],
+      ["chen", "我知道流程不允许……我还是按了。"],
+    );
+  } else if (stage === 6 && option.startsWith("fragment:")) {
+    const fragmentVoices: Record<number, [VoiceId, string]> = {
+      1: ["tang", "锁上 B 棚。她拿不到母带，就会签。"],
+      2: ["chen", "机架冒烟了！断总闸！"],
+      3: ["tang", "文件没写完。谁都别动电源。"],
+      5: ["child", "最后一下……该我唱。"],
+      6: ["chen", "别听。小默，跟爸爸出去。"],
+      7: ["chen", "别回头。"],
+    };
+    if (fragmentVoices[Number(option.slice(9))]) {
+      add(fragmentVoices[Number(option.slice(9))]);
+    }
+  } else if (stage === 6 && option !== "phase:off") {
+    add(["child", "最后一下……该我唱。"]);
+  } else if (stage === 7 && !option.startsWith("note:")) {
+    add(
+      ["qiao", "小默，这个音低了一点。别重唱。"],
+      ["qiao", "七拍都在，我们就知道，对方还听得见。"],
+    );
+  }
+
+  return clips.flatMap(([voice, text]) => {
+    const clip = getVoiceClip(voice, text);
+    return clip ? [clip.id] : [];
+  });
+}
+
 const LISTENER_VOICE_LINES = [
   "你不记得这个音。为什么还要把它放回去？",
   "房间会留下回声。记忆不会。",
@@ -686,6 +775,24 @@ const RELAY_TRACK_LABELS: Record<string, string> = {
   control: "CONTROL 控制轨",
 };
 
+const STORY_TRACKS: Record<
+  number,
+  { label: string; detail: string }
+> = {
+  0: {
+    label: "童年练习对白",
+    detail: "乔岚与童年陈默的对话已从三次演奏中分离。",
+  },
+  1: {
+    label: "玻璃后的约定",
+    detail: "六次敲击保留在证据轨，对话改为独立播放。",
+  },
+  4: {
+    label: "草稿备注与监听者",
+    detail: "工作备注和监听者干扰均不再混入旋律比对。",
+  },
+};
+
 function parseRelayPlayback(option: string) {
   const tracked = option.match(
     /^time:(room|piano|control)@(\d{2}:\d{2})$/,
@@ -698,9 +805,12 @@ function parseRelayPlayback(option: string) {
 }
 
 function describePlayback(stage: number, option = "default") {
+  if (option === "story") {
+    return `独立对白：${STORY_TRACKS[stage]?.label ?? "本章剧情"}`;
+  }
   if (stage === 0) {
     return {
-      "take-a": "TAKE A：人声哼唱，七拍完整",
+      "take-a": "TAKE A：哼唱旋律，七拍完整",
       "take-b": "TAKE B：钢琴试奏，七拍完整",
       final: "正式混音：第七码被静音",
     }[option] ?? "正式混音：第七码被静音";
@@ -778,6 +888,7 @@ function getPlaybackWaveformSeed(stage: number, option: string) {
 }
 
 function describePlaybackKind(stage: number, option = "default") {
+  if (option === "story") return "独立剧情对白";
   if (
     option === "father-note" ||
     option === "listener-final" ||
@@ -1157,6 +1268,7 @@ function createAudioEngine() {
   let activeSources: AudioBufferSourceNode[] = [];
   const voiceBuffers = new Map<string, Promise<AudioBuffer | null>>();
   let sessionId = 0;
+  let playRequestId = 0;
 
   const ensureGraph = () => {
     if (!context) {
@@ -1434,6 +1546,17 @@ function createAudioEngine() {
     option = "default",
     onVoiceCue?: (cue: VoiceCue) => void,
   ) => {
+    const requestId = ++playRequestId;
+    await unlock();
+    const requiredVoiceClips = [
+      ...new Set(getPlaybackVoiceClipIds(stage, option)),
+    ];
+    await Promise.all(
+      requiredVoiceClips.map((clipId) => loadVoiceBuffer(clipId)),
+    );
+    if (requestId !== playRequestId) {
+      throw new Error("audio-playback-superseded");
+    }
     const graph = await beginSession();
     const { bus, now } = graph;
     let voiceQueueEnd = 0;
@@ -1521,30 +1644,64 @@ function createAudioEngine() {
       return finish(6500);
     }
 
-    if (stage === 0) {
-      if (option === "take-a") {
-        melody(bus, now, { timbre: "hum", gain: 1.8 });
-        narrate("小默，你又把最后一个音唱低了。", 2350, {
+    if (option === "story") {
+      if (stage === 0) {
+        narrate("小默，你又把最后一个音唱低了。", 100, {
           voice: "qiao",
           tone: "听见错误后轻轻笑了一下",
         });
-        narrate("要重来吗？", 5150, {
+        narrate("要重来吗？", 3760, {
           voice: "child",
           tone: "小心翼翼，句首先吸气",
         });
-        narrate("不重来。错得这么认真，删掉多可惜。", 6700, {
+        narrate("不重来。错得这么认真，删掉多可惜。", 6000, {
           voice: "qiao",
           tone: "温柔，但“删掉”前有一瞬停顿",
         });
-        return finish(11200);
-      }
-      if (option === "take-b") {
-        melody(bus, now, { timbre: "piano", gain: 1.6 });
-        narrate("再来一次。最后一下，等你唱。", 2450, {
+        narrate("再来一次。最后一下，等你唱。", 11000, {
           voice: "qiao",
           tone: "像隔着玻璃提醒一个孩子",
         });
-        return finish(6200);
+        return finish(15500);
+      }
+      if (stage === 1) {
+        narrate("隔着玻璃听不见。我敲前六下。", 100, {
+          voice: "qiao",
+          tone: "压低声音，像在约定秘密",
+        });
+        narrate("最后一下，我唱吗？", 4300, {
+          voice: "child",
+          tone: "声音很远，认真确认规则",
+        });
+        narrate("对。这样我就知道，你还听得见。", 7500, {
+          voice: "qiao",
+          tone: "笑意消失，最后五个字说得很慢",
+        });
+        return finish(12000);
+      }
+      if (stage === 4) {
+        narrate("第七码，保留小默原来的音高。不要修。", 100, {
+          voice: "qiao",
+          tone: "工作备注，疲惫但坚定",
+        });
+        narrate("这是节拍。不是求救。", 5300, {
+          voice: "listener",
+          tone: "贴近耳边，像在替你下结论",
+          danger: true,
+        });
+        return finish(9500);
+      }
+      return 0;
+    }
+
+    if (stage === 0) {
+      if (option === "take-a") {
+        melody(bus, now, { timbre: "hum", gain: 1.8 });
+        return finish(2600);
+      }
+      if (option === "take-b") {
+        melody(bus, now, { timbre: "piano", gain: 1.6 });
+        return finish(2600);
       }
       melody(bus, now, {
         missingLast: true,
@@ -1559,20 +1716,8 @@ function createAudioEngine() {
         : "b";
       roomResponse(bus, now, room);
       if (option === "default") {
-        narrate("隔着玻璃听不见。我敲前六下。", 2100, {
-          voice: "qiao",
-          tone: "压低声音，像在约定秘密",
-        });
-        knocks(bus, now + 6.4, "door");
-        narrate("最后一下，我唱吗？", 8300, {
-          voice: "child",
-          tone: "声音很远，认真确认规则",
-        });
-        narrate("对。这样我就知道，你还听得见。", 11400, {
-          voice: "qiao",
-          tone: "笑意消失，最后五个字说得很慢",
-        });
-        return finish(11200);
+        knocks(bus, now + 1.15, "door");
+        return finish(3200);
       }
       return finish(room === "a" ? 2200 : 1500);
     }
@@ -1665,11 +1810,7 @@ function createAudioEngine() {
     if (stage === 4) {
       if (option === "source") {
         melody(bus, now, { timbre: "hum" });
-        narrate("第七码，保留小默原来的音高。不要修。", 2350, {
-          voice: "qiao",
-          tone: "工作备注，疲惫但坚定",
-        });
-        return finish(6600);
+        return finish(2600);
       }
       if (option === "released") {
         melody(bus, now, {
@@ -1678,12 +1819,7 @@ function createAudioEngine() {
           pitchShift: 3,
         });
         knocks(bus, now + 2.15, "door");
-        narrate("这是节拍。不是求救。", 4300, {
-          voice: "listener",
-          tone: "贴近耳边，像在替你下结论",
-          danger: true,
-        });
-        return finish(7200);
+        return finish(4200);
       }
       if (option.startsWith("sample:")) {
         const selected = option.slice(7);
@@ -1885,6 +2021,7 @@ function createAudioEngine() {
   };
 
   const stop = () => {
+    playRequestId += 1;
     sessionId += 1;
     playbackTimers.forEach((timer) => window.clearTimeout(timer));
     playbackTimers = [];
@@ -1959,19 +2096,42 @@ function useAudio(soundEnabled: boolean) {
   };
 }
 
+function formatPlaybackTime(milliseconds: number) {
+  const safeMilliseconds = Math.max(0, milliseconds);
+  const totalTenths = Math.round(safeMilliseconds / 100);
+  const minutes = Math.floor(totalTenths / 600);
+  const seconds = Math.floor((totalTenths % 600) / 10);
+  const tenths = totalTenths % 10;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+    2,
+    "0",
+  )}.${tenths}`;
+}
+
+function getPlaybackTimeMarks(durationMs: number) {
+  if (durationMs <= 0) {
+    return ["00:00.0", "--:--.-", "--:--.-", "--:--.-", "--:--.-"];
+  }
+  return [0, 0.25, 0.5, 0.75, 1].map((ratio) =>
+    formatPlaybackTime(durationMs * ratio),
+  );
+}
+
 function Waveform({
   seed,
   playing,
+  durationMs,
   danger = false,
   gapAt,
 }: {
   seed: number;
   playing: boolean;
+  durationMs: number;
   danger?: boolean;
   gapAt?: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const playheadRef = useRef(0);
+  const clockRef = useRef<HTMLOutputElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1979,8 +2139,10 @@ function Waveform({
     const context = canvas.getContext("2d");
     if (!context) return;
     let frame = 0;
+    const startedAt = window.performance.now();
+    let lastClockText = "";
 
-    const draw = () => {
+    const draw = (timestamp = startedAt) => {
       const rect = canvas.getBoundingClientRect();
       const scale = Math.max(1, window.devicePixelRatio || 1);
       const width = Math.max(320, Math.floor(rect.width * scale));
@@ -2041,12 +2203,13 @@ function Waveform({
       context.lineTo(width, height / 2);
       context.stroke();
 
-      if (playing) {
-        playheadRef.current = (playheadRef.current + 0.006) % 1;
-      } else {
-        playheadRef.current = 0;
-      }
-      const playhead = playheadRef.current * width;
+      const elapsedMs =
+        playing && durationMs > 0
+          ? Math.min(durationMs, Math.max(0, timestamp - startedAt))
+          : 0;
+      const progress =
+        playing && durationMs > 0 ? elapsedMs / durationMs : 0;
+      const playhead = progress * width;
       context.strokeStyle = "#d3ad70";
       context.lineWidth = Math.max(1, scale);
       context.beginPath();
@@ -2054,7 +2217,17 @@ function Waveform({
       context.lineTo(playhead, height);
       context.stroke();
 
-      if (playing) frame = window.requestAnimationFrame(draw);
+      const clockText = `${formatPlaybackTime(elapsedMs)} / ${
+        durationMs > 0 ? formatPlaybackTime(durationMs) : "--:--.-"
+      }`;
+      if (clockRef.current && clockText !== lastClockText) {
+        clockRef.current.textContent = clockText;
+        lastClockText = clockText;
+      }
+
+      if (playing && progress < 1) {
+        frame = window.requestAnimationFrame(draw);
+      }
     };
 
     draw();
@@ -2064,14 +2237,19 @@ function Waveform({
       return () => window.removeEventListener("resize", onResize);
     }
     return () => window.cancelAnimationFrame(frame);
-  }, [danger, gapAt, playing, seed]);
+  }, [danger, durationMs, gapAt, playing, seed]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="waveform-canvas"
-      aria-label="当前音轨的可视波形"
-    />
+    <div className="waveform-visual">
+      <canvas
+        ref={canvasRef}
+        className="waveform-canvas"
+        aria-label="当前音轨的可视波形示意"
+      />
+      <output ref={clockRef} className="waveform-clock" aria-live="off">
+        00:00.0 / --:--.-
+      </output>
+    </div>
   );
 }
 
@@ -3750,6 +3928,7 @@ export function AudioArchiveGame() {
   const [playing, setPlaying] = useState(false);
   const [status, setStatus] = useState("等待操作");
   const [playbackKind, setPlaybackKind] = useState("未选择样本");
+  const [playbackDurationMs, setPlaybackDurationMs] = useState(0);
   const [currentPlayback, setCurrentPlayback] =
     useState<PlaybackSelection | null>(null);
   const [voiceCue, setVoiceCue] = useState<VoiceCue | null>(null);
@@ -3759,6 +3938,7 @@ export function AudioArchiveGame() {
     Record<number, Observation[]>
   >({});
   const playbackTimerRef = useRef<number | null>(null);
+  const playbackRequestRef = useRef(0);
   const audio = useAudio(save.soundEnabled);
 
   useEffect(() => {
@@ -3804,6 +3984,7 @@ export function AudioArchiveGame() {
     nextStatus = "播放已停止；当前样本仍可重播",
     clearSelection = false,
   ) => {
+    playbackRequestRef.current += 1;
     audio.stop();
     if (playbackTimerRef.current) {
       window.clearTimeout(playbackTimerRef.current);
@@ -3814,6 +3995,7 @@ export function AudioArchiveGame() {
     if (clearSelection) {
       setCurrentPlayback(null);
       setPlaybackKind("未选择样本");
+      setPlaybackDurationMs(0);
     } else if (
       currentPlayback &&
       currentPlayback.stage === viewChapter
@@ -3851,7 +4033,16 @@ export function AudioArchiveGame() {
       setStatus("请先点击谜题中的试听按钮，再使用这里重播");
       return false;
     }
+    const requestId = playbackRequestRef.current + 1;
+    playbackRequestRef.current = requestId;
+    audio.stop();
+    if (playbackTimerRef.current) {
+      window.clearTimeout(playbackTimerRef.current);
+      playbackTimerRef.current = null;
+    }
     setCurrentPlayback(selection);
+    setPlaying(false);
+    setPlaybackDurationMs(0);
     setVoiceCue(null);
     setStatus(
       save.soundEnabled
@@ -3863,6 +4054,7 @@ export function AudioArchiveGame() {
       selection.option,
       setVoiceCue,
     );
+    if (requestId !== playbackRequestRef.current) return false;
     if (!result.started) {
       setPlaying(false);
       if (result.reason === "sound-off") {
@@ -3877,6 +4069,7 @@ export function AudioArchiveGame() {
       return false;
     }
     const duration = result.duration;
+    setPlaybackDurationMs(duration);
     setPlaying(true);
     setPlaybackKind(
       describePlaybackKind(selection.stage, selection.option),
@@ -4052,6 +4245,8 @@ export function AudioArchiveGame() {
   const remoteAlert = REMOTE_ALERTS[viewChapter] ?? REMOTE_ALERTS[0];
   const selectedPlayback =
     currentPlayback?.stage === viewChapter ? currentPlayback : null;
+  const playbackTimeMarks = getPlaybackTimeMarks(playbackDurationMs);
+  const storyTrack = STORY_TRACKS[viewChapter];
   const syncCount = Math.min(
     SYNC_EVENTS.length,
     Math.max(1, save.completed.length + 1),
@@ -4206,6 +4401,7 @@ export function AudioArchiveGame() {
                   : viewChapter + 3
               }
               playing={playing}
+              durationMs={playbackDurationMs}
               danger={viewChapter >= 4}
               gapAt={
                 viewChapter === 0 &&
@@ -4216,18 +4412,16 @@ export function AudioArchiveGame() {
               }
             />
             <div className="time-ruler" aria-hidden="true">
-              <span>00:00</span>
-              <span>00:15</span>
-              <span>00:30</span>
-              <span>00:45</span>
-              <span>01:00</span>
+              {playbackTimeMarks.map((mark, index) => (
+                <span key={`${mark}-${index}`}>{mark}</span>
+              ))}
             </div>
             <LiveVoiceCue
               cue={voiceCue}
               soundEnabled={save.soundEnabled}
             />
             <p className="playback-rule">
-              顶部只重播你最后点击的样本；样本名称、波形、字幕和声音使用同一个编号。
+              谜题证据与剧情对白分轨播放；播放头和刻度按当前样本的真实时长推进。
             </p>
           </div>
 
@@ -4325,6 +4519,36 @@ export function AudioArchiveGame() {
                 <span>陈默 / 当前判断</span>
                 {chapter.monologue}
               </blockquote>
+              {storyTrack ? (
+                <section className="story-audio-track">
+                  <div>
+                    <span>独立对白轨</span>
+                    <b>{storyTrack.label}</b>
+                    <p>{storyTrack.detail}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={
+                      playing && selectedPlayback?.option === "story"
+                        ? "is-playing"
+                        : ""
+                    }
+                    onClick={() =>
+                      playing && selectedPlayback?.option === "story"
+                        ? stopPlayback()
+                        : void playTrack("story")
+                    }
+                  >
+                    {playing && selectedPlayback?.option === "story"
+                      ? "停止对白"
+                      : "单独播放对白"}
+                  </button>
+                </section>
+              ) : (
+                <p className="story-audio-note">
+                  本章人声本身就是待验证证据，不再叠加额外剧情对白。
+                </p>
+              )}
               <section className="sync-panel">
                 <div className="side-heading">
                   <span>同步冲突</span>

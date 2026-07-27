@@ -84,7 +84,13 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /PlaybackSelection/);
   assert.match(component, /currentPlayback/);
   assert.match(component, /getPlaybackWaveformSeed/);
+  assert.match(component, /getPlaybackTimeMarks/);
+  assert.match(component, /durationMs/);
+  assert.doesNotMatch(component, /playheadRef\.current \+ 0\.006/);
+  assert.doesNotMatch(component, /<span>00:15<\/span>/);
   assert.match(component, /getReviewPlaybackOption/);
+  assert.match(component, /getPlaybackVoiceClipIds/);
+  assert.match(component, /requiredVoiceClips/);
   assert.match(component, /LISTENER_VOICE_LINES/);
   assert.match(component, /声纹字幕/);
   assert.match(component, /第一次叫出你的名字/);
@@ -148,7 +154,11 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /打开提示/);
   assert.match(component, /当前样本仍可重播/);
   assert.match(component, /下一章请重新选择样本/);
-  assert.match(component, /顶部只重播你最后点击的样本/);
+  assert.match(component, /谜题证据与剧情对白分轨播放/);
+  assert.match(component, /播放头和刻度按当前样本的真实时长推进/);
+  assert.match(component, /STORY_TRACKS/);
+  assert.match(component, /独立对白轨/);
+  assert.match(component, /单独播放对白/);
   assert.match(component, /先选择样本/);
   assert.match(component, /time:\$\{label\.toLowerCase\(\)\}@\$\{time\}/);
   assert.match(component, /ROOM 房间轨/);
