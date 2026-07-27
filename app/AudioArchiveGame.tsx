@@ -20,6 +20,11 @@ type VoiceCue = {
   danger?: boolean;
 };
 
+type PlaybackSelection = {
+  stage: number;
+  option: string;
+};
+
 type SaveState = {
   started: boolean;
   phase: Phase;
@@ -669,6 +674,23 @@ const ENDINGS: Record<
   },
 };
 
+const RELAY_TRACK_LABELS: Record<string, string> = {
+  room: "ROOM 房间轨",
+  piano: "PIANO 钢琴轨",
+  control: "CONTROL 控制轨",
+};
+
+function parseRelayPlayback(option: string) {
+  const tracked = option.match(
+    /^time:(room|piano|control)@(\d{2}:\d{2})$/,
+  );
+  if (tracked) {
+    return { track: tracked[1], time: tracked[2] };
+  }
+  const legacy = option.match(/^time:(\d{2}:\d{2})$/);
+  return legacy ? { track: "control", time: legacy[1] } : null;
+}
+
 function describePlayback(stage: number, option = "default") {
   if (stage === 0) {
     return {
@@ -707,8 +729,9 @@ function describePlayback(stage: number, option = "default") {
     return "双轨对齐试听：左为草稿，右为当前修复参数";
   }
   if (stage === 5) {
-    if (option.startsWith("time:")) {
-      return `继电器时间窗：${option.slice(5)}`;
+    const relayPlayback = parseRelayPlayback(option);
+    if (relayPlayback) {
+      return `${RELAY_TRACK_LABELS[relayPlayback.track]}：${relayPlayback.time} 时间窗`;
     }
     return option === "record:clean"
       ? "清理版本：父亲的旁路操作被删除"
@@ -716,7 +739,8 @@ function describePlayback(stage: number, option = "default") {
   }
   if (stage === 6) {
     if (option.startsWith("fragment:")) {
-      return `房间声片段 ${option.slice(9).padStart(2, "0")}`;
+      const segment = Number(option.slice(9));
+      return `房间声片段 ${FRAGMENT_META[segment]?.code ?? "未知编号"}`;
     }
     return option === "phase:off"
       ? "反相关闭：表面音乐仍覆盖房间声"
@@ -725,6 +749,26 @@ function describePlayback(stage: number, option = "default") {
   return option.startsWith("note:")
     ? `第七码候选：${option.slice(5).toUpperCase()}`
     : "完整七音已恢复";
+}
+
+function getReviewPlaybackOption(stage: number) {
+  return [
+    "final",
+    "default",
+    "right",
+    "speaker:tang",
+    "compare:0.82:-3",
+    "record:full",
+    "phase:on",
+  ][stage] ?? "default";
+}
+
+function getPlaybackWaveformSeed(stage: number, option: string) {
+  let hash = stage * 97 + 17;
+  for (let index = 0; index < option.length; index += 1) {
+    hash = (hash * 31 + option.charCodeAt(index)) % 9973;
+  }
+  return hash;
 }
 
 function describePlaybackKind(stage: number, option = "default") {
@@ -1049,6 +1093,19 @@ function getObservation(stage: number, option: string): Observation | null {
         : "旋律仍有明显拍点漂移或高度偏差；轮廓误差大于 14%。",
       role: matched ? "primary" : "observation",
     };
+  }
+  if (stage === 5) {
+    const relayPlayback = parseRelayPlayback(option);
+    const relayDefinition = relayPlayback
+      ? OBSERVATION_LIBRARY[stage]?.[`time:${relayPlayback.time}`]
+      : null;
+    if (relayPlayback && relayDefinition) {
+      return {
+        id: `${stage}:${option}`,
+        ...relayDefinition,
+        title: `${RELAY_TRACK_LABELS[relayPlayback.track]} / ${relayDefinition.title}`,
+      };
+    }
   }
   if (stage === 6 && option.startsWith("fragment:")) {
     const segment = Number(option.slice(9));
@@ -1603,23 +1660,52 @@ function createAudioEngine() {
       return finish(5200);
     }
     if (stage === 5) {
-      if (option.startsWith("time:")) {
-        const time = option.slice(5);
+      const relayPlayback = parseRelayPlayback(option);
+      if (relayPlayback) {
+        const { track, time } = relayPlayback;
+        const pan = track === "room" ? -0.62 : track === "piano" ? 0 : 0.62;
+        const addTrackPrint = (start: number) => {
+          if (track === "room") {
+            noise(bus, start + 0.07, 0.08, 0.025, pan, 780);
+          } else if (track === "piano") {
+            tone(bus, 132, start + 0.04, 0.12, 0.014, pan, "sine", 0.02);
+          } else {
+            tone(bus, 62, start + 0.03, 0.1, 0.012, pan, "triangle", 0.01);
+          }
+        };
         if (time === "22:40") {
-          [0, 0.48, 0.96, 1.44].forEach((offset) =>
-            relayPulse(bus, now + offset),
-          );
+          [0, 0.62, 1.24].forEach((offset) => {
+            relayPulse(bus, now + offset, pan);
+            addTrackPrint(now + offset);
+          });
           return finish(2100);
         }
         if (time === "22:50") {
-          relayPulse(bus, now);
-          noise(bus, now + 0.72, 0.28, 0.055, 0, 340);
-          tone(bus, 54, now + 0.72, 1.7, 0.05, 0, "sine", 0.15);
+          noise(bus, now, 0.12, 0.028, pan, track === "room" ? 760 : 420);
+          tone(
+            bus,
+            track === "piano" ? 132 : track === "room" ? 54 : 62,
+            now + 0.35,
+            1.7,
+            0.035,
+            pan,
+            "sine",
+            0.15,
+          );
           return finish(2800);
         }
-        tone(bus, 48, now, 2.1, 0.06, 0, "sine", 0.18);
+        tone(
+          bus,
+          track === "piano" ? 126 : track === "room" ? 48 : 60,
+          now,
+          2.1,
+          0.045,
+          pan,
+          "sine",
+          0.18,
+        );
         [0.35, 1.15].forEach((offset) =>
-          noise(bus, now + offset, 0.34, 0.045, 0.2, 430),
+          noise(bus, now + offset, 0.24, 0.03, pan, track === "room" ? 430 : 680),
         );
         return finish(2700);
       }
@@ -2772,11 +2858,12 @@ function PuzzleWorkspace({
                         : ""
                     }`}
                     onClick={() => {
+                      const option = `time:${label.toLowerCase()}@${time}`;
                       if (guideStep < 5) {
-                        guidedPlay(`time:${time}`, index + 1);
+                        guidedPlay(option, index + 1);
                       } else {
                         setRelayTime(time);
-                        inspectPlay(`time:${time}`);
+                        inspectPlay(option);
                         advanceGuide(5);
                       }
                     }}
@@ -3563,7 +3650,9 @@ export function AudioArchiveGame() {
   const [viewChapter, setViewChapter] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [status, setStatus] = useState("等待操作");
-  const [playbackKind, setPlaybackKind] = useState("单轨待机");
+  const [playbackKind, setPlaybackKind] = useState("未选择样本");
+  const [currentPlayback, setCurrentPlayback] =
+    useState<PlaybackSelection | null>(null);
   const [voiceCue, setVoiceCue] = useState<VoiceCue | null>(null);
   const [resetArmed, setResetArmed] = useState(false);
   const [sideTab, setSideTab] = useState<"clues" | "story">("clues");
@@ -3612,7 +3701,10 @@ export function AudioArchiveGame() {
     setSave((current) => ({ ...current, ...patch }));
   }, []);
 
-  const stopPlayback = (nextStatus = "播放已停止；不会继续上一段") => {
+  const stopPlayback = (
+    nextStatus = "播放已停止；当前样本仍可重播",
+    clearSelection = false,
+  ) => {
     audio.stop();
     if (playbackTimerRef.current) {
       window.clearTimeout(playbackTimerRef.current);
@@ -3620,8 +3712,26 @@ export function AudioArchiveGame() {
     }
     setPlaying(false);
     setVoiceCue(null);
-    setPlaybackKind("单轨待机");
-    setStatus(nextStatus);
+    if (clearSelection) {
+      setCurrentPlayback(null);
+      setPlaybackKind("未选择样本");
+    } else if (
+      currentPlayback &&
+      currentPlayback.stage === viewChapter
+    ) {
+      setPlaybackKind(
+        describePlaybackKind(currentPlayback.stage, currentPlayback.option),
+      );
+    } else {
+      setPlaybackKind("未选择样本");
+    }
+    setStatus(
+      !clearSelection &&
+        (!currentPlayback || currentPlayback.stage !== viewChapter) &&
+        nextStatus === "播放已停止；当前样本仍可重播"
+        ? "播放已停止；请在当前步骤选择样本"
+        : nextStatus,
+    );
   };
 
   const toggleSound = () => {
@@ -3632,13 +3742,30 @@ export function AudioArchiveGame() {
   };
 
   const playTrack = (option?: string) => {
+    const selection = option
+      ? { stage: viewChapter, option }
+      : currentPlayback?.stage === viewChapter
+        ? currentPlayback
+        : null;
+    if (!selection) {
+      setPlaybackKind("未选择样本");
+      setStatus("请先点击谜题中的试听按钮，再使用这里重播");
+      return;
+    }
+    setCurrentPlayback(selection);
     setVoiceCue(null);
-    const duration = audio.play(viewChapter, option, setVoiceCue);
+    const duration = audio.play(
+      selection.stage,
+      selection.option,
+      setVoiceCue,
+    );
     setPlaying(true);
-    setPlaybackKind(describePlaybackKind(viewChapter, option));
+    setPlaybackKind(
+      describePlaybackKind(selection.stage, selection.option),
+    );
     setStatus(
       save.soundEnabled
-        ? `试听：${describePlayback(viewChapter, option)}`
+        ? `试听：${describePlayback(selection.stage, selection.option)}`
         : "声音关闭：显示可视波形",
     );
     if (playbackTimerRef.current) {
@@ -3647,8 +3774,12 @@ export function AudioArchiveGame() {
     playbackTimerRef.current = window.setTimeout(() => {
       setPlaying(false);
       setVoiceCue(null);
-      setPlaybackKind("单轨待机");
-      setStatus("播放结束");
+      setPlaybackKind(
+        describePlaybackKind(selection.stage, selection.option),
+      );
+      setStatus(
+        `已选择：${describePlayback(selection.stage, selection.option)}；可直接重播`,
+      );
       playbackTimerRef.current = null;
     }, duration);
   };
@@ -3659,14 +3790,15 @@ export function AudioArchiveGame() {
     const duration = audio.play(7, "father-note", setVoiceCue);
     setPlaying(true);
     setPlaybackKind("人物对白");
+    setCurrentPlayback(null);
     if (playbackTimerRef.current) {
       window.clearTimeout(playbackTimerRef.current);
     }
     playbackTimerRef.current = window.setTimeout(() => {
       setPlaying(false);
       setVoiceCue(null);
-      setPlaybackKind("单轨待机");
-      setStatus("等待操作");
+      setPlaybackKind("未选择样本");
+      setStatus("请点击当前步骤中的试听按钮");
       playbackTimerRef.current = null;
     }, duration);
     setSave((current) => ({
@@ -3692,7 +3824,7 @@ export function AudioArchiveGame() {
 
   const completeChapter = () => {
     audio.click();
-    stopPlayback("本章播放已停止；下一章不会自动插播");
+    stopPlayback("本章播放已停止；下一章请重新选择样本", true);
     if (viewChapter < CHAPTERS.length - 1) {
       setViewChapter(viewChapter + 1);
     }
@@ -3733,7 +3865,7 @@ export function AudioArchiveGame() {
       setResetArmed(true);
       return;
     }
-    stopPlayback("工程已重置");
+    stopPlayback("工程已重置", true);
     window.localStorage.removeItem(STORAGE_KEY);
     setSave(DEFAULT_SAVE);
     setViewChapter(0);
@@ -3792,6 +3924,8 @@ export function AudioArchiveGame() {
   const hintLevel = save.hintLevels[viewChapter] ?? 0;
   const visibleObservations = chapterObservations[viewChapter] ?? [];
   const remoteAlert = REMOTE_ALERTS[viewChapter] ?? REMOTE_ALERTS[0];
+  const selectedPlayback =
+    currentPlayback?.stage === viewChapter ? currentPlayback : null;
   const syncCount = Math.min(
     SYNC_EVENTS.length,
     Math.max(1, save.completed.length + 1),
@@ -3858,7 +3992,10 @@ export function AudioArchiveGame() {
                     complete ? "is-complete" : ""
                   } ${locked ? "is-locked" : ""}`}
                   onClick={() => {
-                    stopPlayback("已切换章节；请重新选择要听的样本");
+                    stopPlayback(
+                      "已切换章节；请重新选择要听的样本",
+                      true,
+                    );
                     setViewChapter(item.id);
                     setSideTab("clues");
                   }}
@@ -3910,11 +4047,16 @@ export function AudioArchiveGame() {
                 <button
                   type="button"
                   className={playing ? "is-playing" : ""}
+                  disabled={!playing && !selectedPlayback}
                   onClick={() =>
                     playing ? stopPlayback() : playTrack()
                   }
                 >
-                  {playing ? "停止播放" : "播放音轨"}
+                  {playing
+                    ? "停止播放"
+                    : selectedPlayback
+                      ? "重播当前样本"
+                      : "先选择样本"}
                 </button>
                 <div>
                   <small>{playbackKind}</small>
@@ -3929,10 +4071,23 @@ export function AudioArchiveGame() {
               </div>
             </div>
             <Waveform
-              seed={viewChapter + 3}
+              seed={
+                selectedPlayback
+                  ? getPlaybackWaveformSeed(
+                      selectedPlayback.stage,
+                      selectedPlayback.option,
+                    )
+                  : viewChapter + 3
+              }
               playing={playing}
               danger={viewChapter >= 4}
-              gapAt={viewChapter === 0 ? 0.86 : undefined}
+              gapAt={
+                viewChapter === 0 &&
+                (selectedPlayback?.option === "final" ||
+                  selectedPlayback?.option === "default")
+                  ? 0.86
+                  : undefined
+              }
             />
             <div className="time-ruler" aria-hidden="true">
               <span>00:00</span>
@@ -3946,7 +4101,7 @@ export function AudioArchiveGame() {
               soundEnabled={save.soundEnabled}
             />
             <p className="playback-rule">
-              任意新试听都会先停止上一段；对白、环境声和处理样本不会并行播放。
+              顶部只重播你最后点击的样本；样本名称、波形、字幕和声音使用同一个编号。
             </p>
           </div>
 
@@ -3955,10 +4110,12 @@ export function AudioArchiveGame() {
               <ReviewPanel
                 chapter={chapter}
                 onBack={() => {
-                  stopPlayback("已返回当前任务");
+                  stopPlayback("已返回当前任务", true);
                   setViewChapter(save.currentChapter);
                 }}
-                onPlay={() => playTrack()}
+                onPlay={() =>
+                  playTrack(getReviewPlaybackOption(viewChapter))
+                }
                 playing={playing}
               />
             ) : (

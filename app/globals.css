@@ -2577,6 +2577,18 @@ button:disabled {
   content: "■";
 }
 
+.playback-status button:disabled {
+  border-color: #34433e;
+  background: #111917;
+  color: var(--faint);
+  box-shadow: none;
+  opacity: 0.72;
+}
+
+.playback-status button:disabled::before {
+  content: "—";
+}
+
 .playback-status span {
   color: var(--copy-soft);
 }
@@ -3870,6 +3882,14 @@ button:disabled {
 .game-shell .playback-status button:hover {
   border-color: var(--green-bright);
   background: #1a4035;
+}
+
+.game-shell .playback-status button:disabled,
+.game-shell .playback-status button:disabled:hover {
+  border-color: #34433e;
+  background: #111917;
+  color: var(--faint);
+  box-shadow: none;
 }
 
 .game-shell .guided-panel {

@@ -67,6 +67,10 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /VOICE_PROFILES/);
   assert.match(component, /VOICE_CLIPS/);
   assert.match(component, /new Audio\(`audio\/voices\//);
+  assert.match(component, /PlaybackSelection/);
+  assert.match(component, /currentPlayback/);
+  assert.match(component, /getPlaybackWaveformSeed/);
+  assert.match(component, /getReviewPlaybackOption/);
   assert.match(component, /LISTENER_VOICE_LINES/);
   assert.match(component, /声纹字幕/);
   assert.match(component, /第一次叫出你的名字/);
@@ -128,8 +132,15 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /点击黄色高亮/);
   assert.match(component, /页面中的黄色高亮区域就是当前可点击位置/);
   assert.match(component, /打开提示/);
-  assert.match(component, /任意新试听都会先停止上一段/);
-  assert.match(component, /下一章不会自动插播/);
+  assert.match(component, /当前样本仍可重播/);
+  assert.match(component, /下一章请重新选择样本/);
+  assert.match(component, /顶部只重播你最后点击的样本/);
+  assert.match(component, /先选择样本/);
+  assert.match(component, /time:\$\{label\.toLowerCase\(\)\}@\$\{time\}/);
+  assert.match(component, /ROOM 房间轨/);
+  assert.match(component, /PIANO 钢琴轨/);
+  assert.match(component, /CONTROL 控制轨/);
+  assert.match(component, /FRAGMENT_META\[segment\]\?\.code/);
   assert.match(component, /K4 → M1 → R7 → B2 → Q5 → D8 → H3/);
   assert.doesNotMatch(component, /voiceTexture/);
   assert.doesNotMatch(component, /getUserMedia|mediaDevices|\.loop\s*=\s*true/);
