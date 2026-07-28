@@ -49,19 +49,20 @@ test("contains seven playable chapters, accessible clues, and local progress", a
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  for (const file of [
-    "01_潮汐练习_三次",
-    "02_房间测试_无标签",
-    "03_导出前_立体声",
-    "04_听证副本_合并",
-    "05_乔岚草稿_与_无潮之夜",
-    "06_四十分钟",
-    "07_ROOM_不可播放",
+  for (const pass of [
+    "PASS 01",
+    "PASS 02",
+    "PASS 03",
+    "PASS 04",
+    "PASS 05",
+    "PASS 06",
+    "PASS 07",
   ]) {
-    assert.match(component, new RegExp(file));
+    assert.match(component, new RegExp(pass));
   }
 
   assert.match(component, /localStorage/);
+  assert.match(component, /the-seventh-code-save-v2/);
   assert.match(component, /AudioContext/);
   assert.doesNotMatch(component, /speechSynthesis|SpeechSynthesisUtterance/);
   assert.match(component, /VOICE_PROFILES/);
@@ -95,7 +96,7 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /声纹字幕/);
   assert.match(component, /第一次叫出你的名字/);
   assert.match(component, /小默，你又把最后一个音唱低了/);
-  assert.match(component, /不要一次选完/);
+  assert.match(component, /七次修复已经完成。现在只综合三项责任结论/);
   assert.match(component, /当前只处理第/);
   assert.match(component, /证据来源/);
   assert.match(component, /因果链已完成，进入发布决定/);
@@ -137,7 +138,6 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /六次敲击 \+ 一个低音回应/);
   assert.match(component, /六次敲击 \+ 一次吸气 \+ 空拍/);
   assert.match(component, /有人在等待约定的第七码回应/);
-  assert.match(component, /不看时间码/);
   assert.match(component, /呼吸与机械滴答/);
   assert.match(component, /原始残句 A/);
   assert.match(component, /原始残句 B/);
@@ -164,7 +164,7 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /可选佐证/);
   assert.match(component, /查看完整修复步骤/);
   assert.match(component, /修复记录/);
-  assert.match(component, /正在修复/);
+  assert.match(component, /正在处理母带/);
   assert.match(component, /线索记录/);
   assert.match(component, /剧情回顾/);
   assert.match(component, /定位下一步/);
@@ -183,8 +183,20 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /ROOM 房间轨/);
   assert.match(component, /PIANO 钢琴轨/);
   assert.match(component, /CONTROL 控制轨/);
-  assert.match(component, /FRAGMENT_META\[segment\]\?\.code/);
-  assert.match(component, /K4 → M1 → R7 → B2 → Q5 → D8 → H3/);
+  assert.match(component, /FRAGMENT_META\[segment\]\?\.label/);
+  assert.match(component, /锁门命令/);
+  assert.match(component, /断电要求/);
+  assert.match(component, /导出阻止/);
+  assert.match(component, /缺席回应/);
+  assert.doesNotMatch(component, /K4 → M1 → R7 → B2 → Q5 → D8 → H3/);
+  assert.match(component, /装入上章成果/);
+  assert.match(component, /上章成果/);
+  assert.match(component, /本章将写出/);
+  assert.match(component, /七拍基准：前六拍呼叫，第七拍回应/);
+  assert.match(component, /第七码空窗：六次敲击后留下吸气，没有回应/);
+  assert.match(component, /六分钟残句：开门命令 → 导出拒绝 → 她还在里面/);
+  assert.match(component, /22:49/);
+  assert.match(component, /23:11/);
   assert.doesNotMatch(component, /voiceTexture/);
   assert.doesNotMatch(component, /getUserMedia|mediaDevices|\.loop\s*=\s*true/);
 
@@ -220,6 +232,7 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(css, /\.conclusion-builder/);
   assert.match(css, /\.chain-evidence/);
   assert.match(css, /\.chain-options/);
+  assert.match(css, /\.chain-transfer/);
   assert.match(css, /\.ending-log-sequence/);
   assert.match(css, /\.ending-anomaly/);
   assert.match(css, /\.audio-error/);

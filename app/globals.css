@@ -2034,7 +2034,7 @@ button:disabled {
 
 .segment-bank {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 6px;
   opacity: 0.28;
   filter: blur(2px);
@@ -2092,6 +2092,14 @@ button:disabled {
   font-size: 6px;
   font-weight: 500;
   letter-spacing: -0.02em;
+}
+
+.segment-bank button > q {
+  color: #aebbb5;
+  font-family: var(--mono);
+  font-size: 6px;
+  line-height: 1.4;
+  quotes: none;
 }
 
 .segment-bank em {
@@ -4550,6 +4558,96 @@ button:disabled {
     #0d1718;
 }
 
+.chain-transfer {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(77, 120, 109, 0.62);
+  background:
+    linear-gradient(90deg, rgba(47, 116, 98, 0.12), transparent 60%),
+    #0b1415;
+}
+
+.chain-transfer > div {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid rgba(77, 120, 109, 0.4);
+  background: rgba(16, 29, 28, 0.78);
+}
+
+.chain-transfer > div:last-child {
+  flex: 1.35;
+  border-color: rgba(239, 179, 90, 0.42);
+}
+
+.chain-transfer span,
+.chain-transfer small {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.chain-transfer strong {
+  color: var(--green-bright);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.chain-transfer > div:last-child strong {
+  color: #ffe0ad;
+}
+
+.chain-transfer > i {
+  align-self: center;
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 17px;
+  font-style: normal;
+}
+
+.chain-transfer > button {
+  min-width: 142px;
+  border: 1px solid var(--amber);
+  background: rgba(239, 179, 90, 0.1);
+  color: #ffe0ad;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+.chain-transfer.is-loaded > button {
+  border-color: rgba(90, 215, 167, 0.5);
+  color: var(--green-bright);
+  cursor: default;
+  opacity: 0.78;
+}
+
+.review-artifact {
+  display: grid;
+  gap: 5px;
+  padding: 11px 13px;
+  border: 1px solid rgba(239, 179, 90, 0.42);
+  background: rgba(239, 179, 90, 0.06);
+}
+
+.review-artifact span,
+.review-artifact small {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.review-artifact strong {
+  color: #ffe0ad;
+  font-size: 11px;
+  font-weight: 500;
+}
+
 .game-shell .is-next-action {
   border-color: var(--amber) !important;
   background-color: rgba(239, 179, 90, 0.1) !important;
@@ -6723,6 +6821,19 @@ body {
 }
 
 @media (max-width: 680px) {
+  .chain-transfer {
+    flex-direction: column;
+  }
+
+  .chain-transfer > button {
+    min-height: 46px;
+  }
+
+  .chain-transfer > i {
+    align-self: center;
+    transform: rotate(90deg);
+  }
+
   .audio-scene-compare,
   .raw-fragment-grid,
   .record-comparison {
@@ -6803,6 +6914,6 @@ body {
   }
 
   .segment-bank button {
-    min-height: 120px;
+    min-height: 156px;
   }
 }

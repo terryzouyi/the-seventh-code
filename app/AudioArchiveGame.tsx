@@ -49,13 +49,16 @@ type Chapter = {
   title: string;
   file: string;
   objective: string;
+  input: string;
+  artifact: string;
+  nextUse: string;
   fact: string;
   monologue: string;
   transcript: string[];
   duration: string;
 };
 
-const STORAGE_KEY = "the-seventh-code-save-v1";
+const STORAGE_KEY = "the-seventh-code-save-v2";
 
 const DEFAULT_SAVE: SaveState = {
   started: false,
@@ -73,12 +76,15 @@ const CHAPTERS: Chapter[] = [
   {
     id: 0,
     number: "01",
-    title: "缺掉的一拍",
-    file: "01_潮汐练习_三次",
-    objective: "比较三次演奏，找出正式混音中被自动静音的节拍。",
-    fact: "正式混音主动删除了第七个音，静音来自隐藏声道 07_ROOM。",
+    title: "建立七拍基准",
+    file: "事故母带 / PASS 01",
+    objective: "从两次完整练习中建立七拍基准，再标记正式混音唯一缺失的位置。",
+    input: "事故母带尚未校准",
+    artifact: "七拍基准：前六拍呼叫，第七拍回应",
+    nextUse: "把七拍基准套在事故房间声上，寻找同样的呼叫结构。",
+    fact: "正式混音主动删除了第七个音；它原本是暗号里的回应位置。",
     monologue:
-      "我不记得她的脸了。可她说“删掉多可惜”的时候，我知道下一秒自己会笑。身体比我先认出了这段录音。",
+      "这不是第一道答案，是一把尺。她把前六拍留给自己，把最后一拍留给我。后面的录音，只要出现同样的空位，就一定有人在等我。",
     transcript: [
       "乔岚：小默，你又把最后一个音唱低了。",
       "陈默（童声）：要重来吗？",
@@ -89,12 +95,15 @@ const CHAPTERS: Chapter[] = [
   {
     id: 1,
     number: "02",
-    title: "六下之后",
-    file: "02_房间测试_无标签",
-    objective: "对照一次童年练习与火灾录音，判断六次敲击为什么停在回应之前。",
-    fact: "门后的六次敲击不是环境噪声，而是乔岚等待陈默唱回第七码的暗号。",
+    title: "暗号没有回答",
+    file: "事故母带 / PASS 02",
+    objective: "装入七拍基准，对齐事故中的六次敲击，解释第七码为什么成为空窗。",
+    input: "PASS 01：七拍基准",
+    artifact: "第七码空窗：六次敲击后留下吸气，没有回应",
+    nextUse: "只放大这段空窗，在被音乐覆盖的母带中寻找同一时刻的人声。",
+    fact: "乔岚在门后发出前六拍暗号；回应位置只留下近距离吸气，没有人唱回第七码。",
     monologue:
-      "我记得那扇红门。十四年后，最有用的偏偏都是他们认为无关的声音。",
+      "她没有随便敲六下。她把刚刚建立的那把尺，隔着红门又说了一遍。空下来的不是一拍，是她在等我回答的时间。",
     transcript: [
       "乔岚：隔着玻璃听不见，我敲前六下，最后一下你唱。",
       "陈默（童声）：是什么意思？",
@@ -105,12 +114,15 @@ const CHAPTERS: Chapter[] = [
   {
     id: 2,
     number: "03",
-    title: "一句话在回答谁",
-    file: "03_导出前_立体声",
-    objective: "分离右声道，根据命令、拒绝与反驳之间的关系恢复三句对话。",
-    fact: "有人为完成导出拒绝开门；现场还存在一个未登记的孩子。",
+    title: "空窗下面的人声",
+    file: "事故母带 / PASS 03",
+    objective: "用第七码空窗作为搜索窗口，分离同一时刻的右声道人声并恢复对话承接。",
+    input: "PASS 02：第七码空窗",
+    artifact: "六分钟残句：开门命令 → 导出拒绝 → 她还在里面",
+    nextUse: "用“导出还差六分钟”回查听证副本，定位被人为压平的剪口。",
+    fact: "有人以“导出还差六分钟”为理由拒绝开门；空窗里还有未登记的童声。",
     monologue:
-      "还有那个孩子。我为什么知道他数第七拍时，会先吸一口气？",
+      "我沿着那口没有唱出来的气往下听，才听见六分钟和一个孩子。上一章的空白不是结论，它是一扇入口。",
     transcript: [
       "声音 A：把 B 棚打开，母带归我。",
       "声音 B：先别开门，导出还差六分钟。",
@@ -122,12 +134,15 @@ const CHAPTERS: Chapter[] = [
   {
     id: 3,
     number: "04",
-    title: "被接成一句的话",
-    file: "04_听证副本_合并",
-    objective: "找出合并副本里被剪断的呼吸与机械滴答，还原两句话原本的说话人。",
-    fact: "唐肃说了“先别开门”；官方副本还删除了陈默在场的声音。",
+    title: "六分钟的剪口",
+    file: "事故母带 / PASS 04",
+    objective: "以“六分钟”残句为定位点，检查听证副本在这句话后的呼吸和机械滴答。",
+    input: "PASS 03：六分钟残句",
+    artifact: "说话人边界：唐肃拒绝开门，陈渡随后反驳",
+    nextUse: "保留陈渡的反驳与童年回应音，作为判断作品来源的原始参照。",
+    fact: "唐肃说了“先别开门”；官方副本删除两人的呼吸边界，把拒绝开门的责任错置给陈渡。",
     monologue:
-      "我不可能在一段自己从没经历过的录音里，听见父亲这样叫我。",
+      "“六分钟”把我带到这道剪口。父亲说的是反驳，不是拒绝；可听见他站在正确的一边，还不能证明他没有做错别的事。",
     transcript: [
       "唐肃：先别开门，导出还差六分钟。",
       "陈渡：她还在里面。",
@@ -139,12 +154,15 @@ const CHAPTERS: Chapter[] = [
   {
     id: 4,
     number: "05",
-    title: "副歌里的一扇门",
-    file: "05_乔岚草稿_与_无潮之夜",
-    objective: "亲手把发行版调回原速，比较旋律走向与六次打击留下的门板尾响。",
+    title: "被借走的第七码",
+    file: "事故母带 / PASS 05",
+    objective: "装入七拍基准与门后敲击，把获奖副歌还原到事故母带的原始速度和高度。",
+    input: "PASS 01 七拍基准 + PASS 02 门后敲击",
+    artifact: "盗用动机：乔岚旋律与求救敲击被做成获奖作品",
+    nextUse: "把作品导出所需的“六分钟”和原始敲击时刻叠到警报轨上。",
     fact: "唐肃盗用了乔岚的七音旋律，也把红门后的六次敲击做成了鼓点。",
     monologue:
-      "别人把它当鼓点，我却每次都在等它敲完。只有门外的人，才会说那不是求救。",
+      "七拍基准、门后敲击、六分钟导出终于落在同一首歌里。唐肃等的不是一个文件，是他后来赖以成名的作品。",
     transcript: [
       "乔岚工作备注：第七码保留小默的音高。不要修，不要替换。",
       "监听者 02：这是节拍，不是求救。",
@@ -154,12 +172,15 @@ const CHAPTERS: Chapter[] = [
   {
     id: 5,
     number: "06",
-    title: "报警器的休止符",
-    file: "06_四十分钟",
-    objective: "比较三个时间窗，找出规律机械点击第一次消失的位置，再判断哪段口述被删掉。",
+    title: "六分钟以前的静音",
+    file: "事故母带 / PASS 06",
+    objective: "先在“还差六分钟”的母带位置确认警报已经缺席，再沿同一轨道向前回查首次消失点。",
+    input: "PASS 03 六分钟残句 + PASS 05 导出动机",
+    artifact: "警报缺席：导出开始以前，陈渡已旁路继电器",
+    nextUse: "把警报缺席、锁门动机、六拍暗号和说话人边界同时带入最终时间线。",
     fact: "22:50，陈渡亲手旁路了火警继电器；他不是唯一有错的人，也并非没有错。",
     monologue:
-      "我想找到一个版本，让我可以毫无保留地原谅他。监听者替我做好了那个版本。",
+      "六分钟残句把我带到事故现场，却告诉我警报在那之前就已经安静。父亲不是锁门的人，但这一次，声音没有替他辩护。",
     transcript: [
       "陈渡：唐老师说只关四十分钟。",
       "陈渡：我知道流程不允许。我还是按了。",
@@ -170,9 +191,12 @@ const CHAPTERS: Chapter[] = [
   {
     id: 6,
     number: "07",
-    title: "七段静音",
-    file: "07_ROOM_不可播放",
-    objective: "反相消去表面音乐，根据话语回应、声音动作与事件后果接回七段房间声。",
+    title: "同一场事故",
+    file: "事故母带 / PASS 07",
+    objective: "装入前六次修复成果，用它们约束七段房间声，而不是重新猜一套片段顺序。",
+    input: "PASS 01—06：全部修复成果",
+    artifact: "完整事故链：锁门、阻止断电、缺席回应、带离孩子与迟到的返回",
+    nextUse: "终章只综合责任，不再重复验证七个已经完成的答案。",
     fact: "唐肃锁门并延迟断电；陈渡关闭警报、先救出陈默，再返回机房。",
     monologue:
       "门没有少敲一下。少回答的人是我。父亲删掉的不是七十秒，是我在那七十秒里听见的一切。",
@@ -191,39 +215,39 @@ const CHAPTERS: Chapter[] = [
 
 const HINTS: string[][] = [
   [
-    "不要猜音名。比较三行节拍格，找出只有正式混音缺失的位置。",
-    "观察最右边的一拍：前两次都有低音，第三次只有灰色环境声。",
-    "正确操作：选择正式混音的第 7 拍，再验证。",
+    "这一章不是单独找缺拍，而是在建立后面六章都会使用的七拍基准。",
+    "前两次练习都在第七格出现回应；正式混音只有这一格为空。",
+    "正确操作：把正式混音第 7 拍写入“七拍基准”。",
   ],
   [
-    "先听童年练习：六次敲击之后应该出现什么？再听事故片段。",
+    "先装入上一章的七拍基准，再把事故敲击贴到前六格。",
     "两段敲击的快慢完全相同；事故片段在第六下之后只剩一次吸气，没有唱回最后一个音。",
-    "正确结论：六次敲击是在等待约定的第七码回应，不是排风扇或随机施工声。",
+    "正确结论：第七码是等待回应的空窗；把它交给下一章继续放大。",
   ],
   [
-    "中央混音把对话盖住了。先单独播放右声道。",
+    "这次不是搜索整段母带。只检查上一章留下的第七码空窗。",
     "不要按人物身份排。先找命令，再找对命令的拒绝；“她还在里面”是在反驳那次拒绝。",
-    "正确顺序：A“把 B 棚打开” → B“先别开门，还差六分钟” → C“她还在里面”。",
+    "正确顺序会产出下一章的定位词：“导出还差六分钟”。",
   ],
   [
-    "合并副本把两句话压成了一句。注意“六分钟”之后的呼吸，以及背景机械滴答是否仍按原间隔出现。",
+    "用上一章的“六分钟”定位听证副本，不必在整段录音里盲找剪口。",
     "单独重听两段原始残句：唐肃的话以“六分钟”结束；陈渡的话从一次急促吸气开始。",
-    "正确还原：前半句来自唐肃，后半句“她还在里面”来自陈渡。",
+    "正确还原会得到一个可传递的说话人边界：唐肃拒绝，陈渡反驳。",
   ],
   [
-    "不用认音名。调整后比较两排七个起音是否同时落下，以及最后一个音是否一起结束。",
+    "这里用的是第一章的七拍基准和第二章的门后敲击，不是突然出现的新音乐题。",
     "0.82×、-3 半音时两段旋律会像同一次演奏；随后比较三组六连击的间距和第六下尾部摩擦。",
-    "正确操作：0.82×、-3 半音，并选择带有同样门板拖擦尾声的 B 棚红门敲击。",
+    "正确结果证明唐肃为何要等那六分钟：他正在导出盗用的旋律与现场敲击。",
   ],
   [
-    "规律机械点击在正常录音里每隔同样时间出现。依次听三个窗口，找第一次只剩环境声的片段。",
-    "22:40 仍有三次轻响；22:50 第一次完全没有，23:00 只是继续保持沉默。",
-    "正确答案：22:50；完整口述中陈渡承认“我知道流程不允许，我还是按了”，清理版删掉了这句。",
+    "先用“还差六分钟”定位 23:11，确认事故对话发生时警报已经缺席；然后沿同一轨向前回查。",
+    "22:49 仍有三次轻响；22:50 第一次完全没有，23:11 只是证明静音持续到了事故。",
+    "正确答案：22:50；完整口述证明不是自然故障，而是陈渡按下了旁路。",
   ],
   [
-    "先打开反相并听完七段。寻找直接回答上一句的残句，也寻找声音动作之后必然发生的后果。",
-    "“断总闸”后才会有人阻止断电；六次敲击后才会出现“最后一下该我唱”；父亲随后带孩子出去。",
-    "正确顺序：K4 → M1 → R7 → B2 → Q5 → D8 → H3。",
+    "每段旁边会显示它由哪一项前章成果约束；最终章不再要求你凭感觉排序。",
+    "锁门动机在前；断电要求后接唐肃阻止；六次敲击后接缺席回应；父亲随后带孩子离开。",
+    "正确链：锁门命令 → 断电要求 → 导出阻止 → 六次敲击 → 缺席回应 → 带离孩子 → 安全门关闭。",
   ],
   [
     "最后一音不是要唱准，而是要保留童年的原始音高。",
@@ -598,104 +622,69 @@ const LISTENER_VOICE_LINES = [
 
 const FINAL_CHAIN_STEPS = [
   {
-    id: "locked",
-    label: "01 / 锁门",
-    question: "乔岚为什么没能离开 B 棚？",
-    source: "第 07 章 · K4 → 后续门后敲击",
-    evidence: "还原片段中，唐肃说：“锁上 B 棚。她拿不到母带，就会签。”",
-    wrong:
-      "录音只证明唐肃下达了锁门命令，没有证据表明陈渡参与策划。",
-    choices: [
-      { id: "locked", text: "唐肃因母带纠纷下令锁住乔岚", correct: true },
-      { id: "planned", text: "陈渡与唐肃共同策划锁门和火灾", correct: false },
-    ],
-  },
-  {
-    id: "delay",
-    label: "02 / 断电",
-    question: "机架冒烟后，为什么没有立刻断总闸？",
-    source: "第 07 章 · M1 → R7",
+    id: "tang",
+    label: "01 / 唐肃的直接责任",
+    question: "把“盗用动机、锁门命令、阻止断电”放在一起，能得到什么结论？",
+    source: "PASS 03、05、07 · 六分钟导出 + 盗用母带 + 完整事故链",
     evidence:
-      "陈渡喊“断总闸”后，唐肃回答：“文件没写完。谁都别动电源。”",
+      "唐肃需要事故母带完成作品导出，因此下令锁住乔岚；机架冒烟后，他又用“文件没写完”阻止断电。",
     wrong:
-      "片段里没有门禁故障；阻止断电的是一个明确的人和一项未完成的导出。",
-    choices: [
-      { id: "delay", text: "唐肃为了等待非法导出，阻止立即断电", correct: true },
-      { id: "fault", text: "机房门禁故障，导致无人能接近总闸", correct: false },
-    ],
-  },
-  {
-    id: "relay",
-    label: "03 / 警报",
-    question: "火警继电器为什么从 22:50 起同时消失？",
-    source: "第 06 章 · 三轨时间码",
-    evidence:
-      "22:40 的等距机械点击从 22:50 起消失；完整口述中陈渡承认：“我知道流程不允许……我还是按了。”",
-    wrong:
-      "清理版本恰好删掉了陈渡承认按下旁路的部分，不能用它替代完整录音。",
-    choices: [
-      { id: "relay", text: "陈渡违规旁路了火警继电器", correct: true },
-      { id: "malfunction", text: "火警系统因机架过热自然损坏", correct: false },
-    ],
-  },
-  {
-    id: "edited",
-    label: "04 / 剪辑",
-    question: "官方副本为什么把“先别开门”归给了陈渡？",
-    source: "第 04 章 · 00:42.118 剪口",
-    evidence:
-      "合并副本在“六分钟”后截断呼吸并提前机械滴答；原始残句证明前半句来自唐肃，后半句来自陈渡。",
-    wrong:
-      "两段原始残句在语义上是拒绝与反驳，官方副本却删除边界并把它们归为同一发言。",
-    choices: [
-      { id: "edited", text: "听证录音被剪辑，并错置了说话人", correct: true },
-      { id: "similar", text: "两人声音相似，记录人员只是听错了", correct: false },
-    ],
-  },
-  {
-    id: "child",
-    label: "05 / 缺席者",
-    question: "官方现场名单还删除了谁？",
-    source: "第 03—04 章 · 右声道 / 被删尾句",
-    evidence:
-      "右声道有孩子数到六；另一段里陈渡喊：“小默？你怎么出来了？”",
-    wrong:
-      "儿童声音在两份独立录音中连续出现，并被现场人物直接叫出名字。",
-    choices: [
-      { id: "child", text: "陈默当晚在场，他的童声也被删除", correct: true },
-      { id: "sample", text: "童声只是导出工程中的广告采样", correct: false },
-    ],
-  },
-  {
-    id: "stolen",
-    label: "06 / 作品",
-    question: "十四年后的获奖作品使用了什么原始材料？",
-    source: "第 05 章 · 0.82× / -3 半音",
-    evidence:
-      "调回原速后七次起音像同一次演奏；发行版六连击与门后敲击拥有相同间距和第六下拖擦尾声。",
-    wrong:
-      "重新演奏木鱼的间距会漂移且没有门板拖擦声，无法解释发行版保留的事故现场细节。",
+      "前六章已经把动机、锁门和阻止断电接成一条连续行为，不能再解释为偶然设备故障。",
     choices: [
       {
-        id: "stolen",
-        text: "唐肃盗用乔岚旋律，并把求救敲击做成鼓点",
+        id: "tang",
+        text: "唐肃为夺取作品锁人，并为完成导出延误处置",
         correct: true,
       },
-      { id: "replayed", text: "旋律合法重写，鼓点是后来重录的木鱼", correct: false },
+      {
+        id: "accident",
+        text: "唐肃只是在事故发生后判断失误，与锁门动机无关",
+        correct: false,
+      },
     ],
   },
   {
-    id: "silence",
-    label: "07 / 沉默",
-    question: "陈渡在事故后留下了怎样的责任？",
-    source: "工程创建者 · CHEN_DU / 保存时间 2026.07.17",
+    id: "chen",
+    label: "02 / 陈渡的真实责任",
+    question: "父亲既要求断电又救走孩子，为什么仍不能被写成完全无辜？",
+    source: "PASS 04、06、07 · 反驳开门 + 警报缺席 + 带离陈默",
     evidence:
-      "他保存了完整工程和旁路证词，却直到十四年后仍没有亲口公开；工程最终留给陈默。",
+      "陈渡没有参与锁门，也在冒烟后要求断电；但 23:11 的六分钟残句出现时警报早已缺席，回查显示它从 22:50 起消失，完整口述保留了他承认按下旁路的句子。",
     wrong:
-      "当前工程本身证明证据没有被彻底销毁；但保存它也不能抵消十四年的沉默。",
+      "清理版本删掉了陈渡按下旁路的承认。救出孩子与反对唐肃不能抹去这项具体操作。",
     choices: [
-      { id: "silence", text: "陈渡保留证据，却沉默了十四年", correct: true },
-      { id: "destroyed", text: "陈渡销毁全部原始证据，完全站在唐肃一边", correct: false },
+      {
+        id: "chen",
+        text: "陈渡不是主谋，但违规关闭警报并沉默十四年",
+        correct: true,
+      },
+      {
+        id: "innocent",
+        text: "陈渡救出了孩子，因此警报操作可以从记录中删除",
+        correct: false,
+      },
+    ],
+  },
+  {
+    id: "record",
+    label: "03 / 被删掉的人",
+    question: "为什么完整公开必须同时保留六次敲击、童声和父亲的错误？",
+    source: "PASS 01—07 · 第七码空窗 + 儿童残句 + 听证剪口",
+    evidence:
+      "乔岚的暗号只有童年陈默能回答；官方副本同时删除了孩子、说话人边界和警报操作。只恢复对父亲有利的部分，会再次制造一份“干净版本”。",
+    wrong:
+      "七次修复证明，被删除的不是一条孤立音轨，而是一条把乔岚、陈默和陈渡责任连在一起的因果链。",
+    choices: [
+      {
+        id: "record",
+        text: "完整记录必须保留所有人的行为，包括玩家最想删掉的部分",
+        correct: true,
+      },
+      {
+        id: "clean",
+        text: "只公开唐肃的行为，删除孩子和陈渡的错误会更清楚",
+        correct: false,
+      },
     ],
   },
 ] as const;
@@ -863,7 +852,7 @@ function describePlayback(stage: number, option = "default") {
   if (stage === 6) {
     if (option.startsWith("fragment:")) {
       const segment = Number(option.slice(9));
-      return `房间声片段 ${FRAGMENT_META[segment]?.code ?? "未知编号"}`;
+      return `房间声：${FRAGMENT_META[segment]?.label ?? "未知片段"}`;
     }
     return option === "phase:off"
       ? "反相关闭：表面音乐仍覆盖房间声"
@@ -931,10 +920,10 @@ function describePlaybackKind(stage: number, option = "default") {
 
 const GUIDE_CONTENT = [
   {
-    question: "正式混音具体删掉了哪一拍？",
+    question: "后面六次修复需要什么共同基准？",
     plain:
-      "不用辨认音高。按顺序听三次演奏，只比较每次最后是否都有七个声音。",
-    term: "节拍格：每一格代表声音出现的一次位置，不代表乐理考试。",
+      "先从两次完整练习建立七拍结构，再在正式混音里标出唯一空缺。这个结果会直接传给下一章。",
+    term: "修复成果：本章写出的不是答案文本，而是下一章能继续使用的一段音频结构。",
     steps: [
       "试听 TAKE A，记住它有七拍",
       "试听 TAKE B，确认它也有七拍",
@@ -944,9 +933,9 @@ const GUIDE_CONTENT = [
     ],
   },
   {
-    question: "事故录音里的六次敲击为什么停在这里？",
+    question: "七拍基准套进事故声后，第七码发生了什么？",
     plain:
-      "先听童年练习里的完整暗号，再听事故房间声。比较第六下之后原本应该出现、却没有出现的声音。",
+      "装入七拍基准，对齐六次敲击，比较回应格。确认后的空窗将成为下一章唯一检查范围。",
     term: "声音逻辑：不是判断声音像什么，而是判断一个已经建立的问答为什么只剩前半段。",
     steps: [
       "试听童年练习里的完整暗号",
@@ -956,9 +945,9 @@ const GUIDE_CONTENT = [
     ],
   },
   {
-    question: "被音乐盖住的三句话藏在哪个声道？",
+    question: "第七码空窗下面压着什么对话？",
     plain:
-      "依次单独检查中央、左侧和右侧。找到对白后，不看时间码，只根据哪一句在回答或反驳上一句来排列。",
+      "只检查上一章留下的空窗，在三个声道中找到人声，再按命令、拒绝和反驳的关系恢复残句。",
     term: "对话承接：拒绝必须发生在命令之后，反驳必须发生在它所针对的理由之后。",
     steps: [
       "试听中央混音",
@@ -969,9 +958,9 @@ const GUIDE_CONTENT = [
     ],
   },
   {
-    question: "合并副本把哪两句话接成了一句？",
+    question: "“六分钟”这句话在听证副本里被怎样改过？",
     plain:
-      "先听官方合并副本，再把呼吸和机械滴答的断点放大。随后分别听两段原始残句，按语义还原拼接。",
+      "上一章已经给出定位词。直接检查“六分钟”之后的呼吸和机械滴答，再与两段原始残句对照。",
     term: "剪口：一句话的换气被截断、背景规律突然跳拍，通常说明中间接入了另一段录音。",
     steps: [
       "试听被合并的听证副本",
@@ -983,9 +972,9 @@ const GUIDE_CONTENT = [
     ],
   },
   {
-    question: "获奖歌曲怎样改动了乔岚的原始旋律？",
+    question: "为什么唐肃一定要等完那六分钟？",
     plain:
-      "先听原稿和发行版，再逐项调整。正确时两段七个起音会同时落下；之后比较六连击的间距与尾部声音。",
+      "把第一章的七拍基准和第二章的门后敲击装入获奖作品。还原后判断它是否使用了事故母带。",
     term: "叠听：两段相同演奏同时播放会像一个声音；错位时会听见明显的双重起音。",
     steps: [
       "试听乔岚的原始草稿",
@@ -997,14 +986,14 @@ const GUIDE_CONTENT = [
     ],
   },
   {
-    question: "火警继电器从哪个时刻开始消失？",
+    question: "“还差六分钟”出现时，警报已经静音多久？",
     plain:
-      "先建立正常机械点击的规律，再听后两个窗口。找到第一次规律被打断的位置，并比较完整与清理口述。",
+      "先装入“六分钟残句”定位 23:11，再沿同一警报轨回查 22:49 与 22:50，找到第一次缺席的位置。",
     term: "声音缺席：本来稳定重复的声音突然消失，本身就是一次可判断的事件。",
     steps: [
-      "试听 22:40 时间窗",
-      "试听 22:50 时间窗",
-      "试听 23:00 时间窗",
+      "试听 23:11，确认事故对话中警报已经缺席",
+      "回查 22:49，建立此前的正常规律",
+      "试听 22:50，找到第一次缺席",
       "选择继电器开始消失的时间",
       "试听包含陈渡完整口述的版本",
       "试听远端上传的清理版本",
@@ -1013,9 +1002,9 @@ const GUIDE_CONTENT = [
     ],
   },
   {
-    question: "被表面音乐盖住的七段房间声，原本是什么顺序？",
+    question: "前六次修复能否约束出唯一事故链？",
     plain:
-      "先开启反相去掉共同音乐，听完七段残句。排列时寻找命令与回应、声音动作与后果之间的连续关系。",
+      "反相后，每段都会标明它承接哪一项修复成果。你是在合并已有证据，不是在重新猜七个孤立片段。",
     term: "语义连续：后一段直接回答上一句，或只能发生在上一段动作之后，就应当相邻。",
     steps: [
       "试听仍被音乐覆盖的录音",
@@ -1039,45 +1028,53 @@ type Observation = {
 const FRAGMENT_META: Record<
   number,
   {
-    code: string;
+    label: string;
     transcript: string;
     sound: string;
+    constraint: string;
   }
 > = {
   1: {
-    code: "K4",
+    label: "锁门命令",
     transcript: "锁上 B 棚。她拿不到母带，就会签。",
     sound: "门禁落锁",
+    constraint: "PASS 05：盗用动机解释为什么先锁门夺取母带",
   },
   2: {
-    code: "M1",
+    label: "断电要求",
     transcript: "机架冒烟了！断总闸！",
     sound: "机架电流声变尖",
+    constraint: "PASS 06：警报已缺席，机架过热后只能主动断电",
   },
   3: {
-    code: "R7",
+    label: "导出阻止",
     transcript: "文件没写完。谁都别动电源。",
     sound: "回应上一句断电要求",
+    constraint: "PASS 03：六分钟导出尚未完成，因此回应断电要求",
   },
   4: {
-    code: "B2",
+    label: "六次敲击",
     transcript: "［门后传来六次敲击］",
     sound: "第六下后留下空拍",
+    constraint: "PASS 02：这是暗号的前六拍，不是新的随机声音",
   },
   5: {
-    code: "Q5",
+    label: "缺席回应",
     transcript: "最后一下……该我唱。",
     sound: "童声回答六次敲击",
+    constraint: "PASS 01：第七码必须发生在六次敲击之后",
   },
   6: {
-    code: "D8",
+    label: "带离孩子",
     transcript: "别听。小默，跟爸爸出去。",
     sound: "脚步转向走廊",
+    constraint: "PASS 03—04：陈渡知道孩子在场，随后把他带离",
   },
   7: {
-    code: "H3",
+    label: "安全门关闭",
     transcript: "别回头。",
     sound: "安全门随后关闭",
+    constraint: "声音后果：脚步进入走廊后，安全门才会关闭",
   },
 };
 
@@ -1215,8 +1212,8 @@ const OBSERVATION_LIBRARY: Array<
       detail: "陈渡说：“唐老师说只关四十分钟……我知道流程不允许，我还是按了。”",
       role: "observation",
     },
-    "time:22:40": {
-      title: "22:40 时间窗",
+    "time:22:49": {
+      title: "22:49 / 导出窗口开始前",
       detail: "听见三次等距机械轻响，建立正常继电器节奏。",
       role: "observation",
     },
@@ -1225,9 +1222,9 @@ const OBSERVATION_LIBRARY: Array<
       detail: "第一次只剩连续环境声；预期出现机械轻响的位置全部空缺。",
       role: "primary",
     },
-    "time:23:00": {
-      title: "23:00 时间窗",
-      detail: "机械轻响仍未恢复，但它的消失早在上一时间窗已经开始。",
+    "time:23:11": {
+      title: "23:11 / 六分钟残句位置",
+      detail: "对话说出“导出还差六分钟”时，机械轻响已经缺席；必须沿同一轨向前寻找开始点。",
       role: "observation",
     },
     "record:clean": {
@@ -1282,8 +1279,8 @@ function getObservation(stage: number, option: string): Observation | null {
     if (!meta) return null;
     return {
       id: `${stage}:${option}`,
-      title: `碎片 ${meta.code} / 听写残句`,
-      detail: `${meta.transcript}；${meta.sound}`,
+      title: `${meta.label} / 听写残句`,
+      detail: `${meta.transcript}；${meta.sound}。约束来源：${meta.constraint}`,
       role: "observation",
     };
   }
@@ -1911,7 +1908,7 @@ function createAudioEngine() {
             tone(bus, 62, start + 0.03, 0.1, 0.012, pan, "triangle", 0.01);
           }
         };
-        if (time === "22:40") {
+        if (time === "22:49") {
           [0, 0.62, 1.24].forEach((offset) => {
             relayPulse(bus, now + offset, pan);
             addTrackPrint(now + offset);
@@ -2531,7 +2528,7 @@ function BootCover({
         <div className="boot-readout">
           <span>创建者：CHEN_DU</span>
           <span>最后保存：2026.07.17 03:14</span>
-          <span>工程文件：7</span>
+          <span>事故母带：1 / 修复阶段：7</span>
           <span>可正常播放：0</span>
           <span>当前监听者：1</span>
         </div>
@@ -2600,6 +2597,7 @@ function PuzzleWorkspace({
   const [heardFragments, setHeardFragments] = useState<number[]>([]);
   const [segmentOrder, setSegmentOrder] = useState<number[]>([]);
   const [message, setMessage] = useState("");
+  const [inputLoaded, setInputLoaded] = useState(stage === 0);
   const [guideStep, setGuideStep] = useState(0);
   const [hintOpen, setHintOpen] = useState(false);
   const puzzleRootRef = useRef<HTMLDivElement>(null);
@@ -2644,6 +2642,7 @@ function PuzzleWorkspace({
   };
 
   const applyCorrectOperation = () => {
+    setInputLoaded(true);
     if (stage === 0) setBeat(6);
     if (stage === 1) setRoom("signal");
     if (stage === 2) {
@@ -2729,7 +2728,7 @@ function PuzzleWorkspace({
       else {
         fail(
           relayTime !== "22:50"
-            ? "三条轨道并没有在这个时刻同时失去继电器声。"
+            ? "沿同一警报轨回查时，这里不是机械点击第一次消失的位置。"
             : "清理版本删掉了对陈渡不利、却真实存在的操作。",
         );
       }
@@ -2795,6 +2794,40 @@ function PuzzleWorkspace({
 
   return (
     <div className="puzzle-stack" ref={puzzleRootRef}>
+      <section
+        className={`chain-transfer ${inputLoaded ? "is-loaded" : "is-waiting"}`}
+        aria-label="跨章修复成果传递"
+      >
+        <div>
+          <span>{stage === 0 ? "本次输入" : "上章成果"}</span>
+          <strong>{CHAPTERS[stage].input}</strong>
+          <small>
+            {stage === 0
+              ? "先建立基准，后续六次修复都将引用它。"
+              : inputLoaded
+                ? "已装入当前处理链"
+                : "必须先装入，当前章的音频窗口才会开放。"}
+        </small>
+        </div>
+        {stage > 0 && (
+          <button
+            type="button"
+            disabled={inputLoaded}
+            className={!inputLoaded ? "is-next-action" : ""}
+            onClick={() => setInputLoaded(true)}
+          >
+            {inputLoaded ? "已装入 ✓" : "装入上章成果 →"}
+          </button>
+        )}
+        <i aria-hidden="true">→</i>
+        <div>
+          <span>本章将写出</span>
+          <strong>{CHAPTERS[stage].artifact}</strong>
+          <small>{CHAPTERS[stage].nextUse}</small>
+        </div>
+      </section>
+      {inputLoaded && (
+        <>
       <GuidedPanel
         stage={stage}
         step={guideStep}
@@ -3195,7 +3228,7 @@ function PuzzleWorkspace({
       {stage === 5 && (
         <>
           <div className="relay-window-actions" aria-label="依次检查时间窗">
-            {["22:40", "22:50", "23:00"].map((time, index) => (
+            {["23:11", "22:49", "22:50"].map((time, index) => (
               <button
                 type="button"
                 key={time}
@@ -3207,9 +3240,15 @@ function PuzzleWorkspace({
                   guidedPlay(`time:control@${time}`, index)
                 }
               >
-                <span>{index === 0 ? "先建立正常规律" : "比较规律是否仍在"}</span>
+                <span>
+                  {time === "23:11"
+                    ? "载入六分钟残句位置"
+                    : time === "22:49"
+                      ? "向前回查正常规律"
+                      : "定位首次缺席"}
+                </span>
                 <strong>{time}</strong>
-                <div className={`relay-listen-strip ${index > 0 ? "is-silent" : ""}`}>
+                <div className={`relay-listen-strip ${time !== "22:49" ? "is-silent" : ""}`}>
                   {Array.from({ length: 3 }, (_, pulse) => (
                     <i key={pulse} />
                   ))}
@@ -3220,7 +3259,7 @@ function PuzzleWorkspace({
           <div className="relay-time-choices">
             <span>选择规律机械点击第一次消失的时间窗</span>
             <div>
-              {["22:40", "22:50", "23:00"].map((time) => (
+              {["22:49", "22:50", "23:11"].map((time) => (
                 <button
                   type="button"
                   key={time}
@@ -3378,14 +3417,19 @@ function PuzzleWorkspace({
                     }
                   }}
                 >
-                  <span>FRAGMENT</span>
-                  <strong>{meta.code}</strong>
+                  <span>母带残片</span>
+                  <strong>{meta.label}</strong>
                   <small>
                     {heardFragments.includes(segment)
                       ? meta.transcript
                       : "先试听以生成听写"}
                   </small>
-                  {heardFragments.includes(segment) && <b>{meta.sound}</b>}
+                  {heardFragments.includes(segment) && (
+                    <>
+                      <b>{meta.sound}</b>
+                      <q>{meta.constraint}</q>
+                    </>
+                  )}
                   <em>{guideStep === 2 ? "试听" : "排入"}</em>
                 </button>
               );
@@ -3397,7 +3441,7 @@ function PuzzleWorkspace({
               {segmentOrder.length === 0
                 ? "等待片段"
                 : segmentOrder.map((segment) => (
-                    <b key={segment}>{FRAGMENT_META[segment].code}</b>
+                    <b key={segment}>{FRAGMENT_META[segment].label}</b>
                   ))}
             </div>
             <button
@@ -3478,6 +3522,8 @@ function PuzzleWorkspace({
           {guideReadyToVerify ? "提交本章结论" : "请先完成当前步骤"}
         </button>
       </div>
+        </>
+      )}
     </div>
   );
 }
@@ -3538,6 +3584,11 @@ function ReviewPanel({
     <div className="review-panel">
       <p className="review-label">已确认事实</p>
       <h3>{chapter.fact}</h3>
+      <div className="review-artifact">
+        <span>已写入处理链</span>
+        <strong>{chapter.artifact}</strong>
+        <small>{chapter.nextUse}</small>
+      </div>
       <div className="transcript-card">
         {chapter.transcript.map((line) => (
           <p key={line}>{line}</p>
@@ -3635,7 +3686,7 @@ function Finale({
       setFacts((items) => [...items, currentChainStep.id]);
       setMessage(
         nextCount === FINAL_CHAIN_STEPS.length
-          ? "七项事实已经连接。先检查完整因果链，再进入发布决定。"
+          ? "三项责任结论已经建立。先检查综合结果，再进入发布决定。"
           : `已写入：${choice.text}。现在继续下一项。`,
       );
       return;
@@ -3706,7 +3757,7 @@ function Finale({
               </blockquote>
             </div>
             <p className="chapter-index">建立最终结论</p>
-            <h2>不要一次选完。按证据把七个因果位置逐项接起来。</h2>
+            <h2>七次修复已经完成。现在只综合三项责任结论。</h2>
             <p className="conclusion-instruction">
               每次只回答当前问题。黄色卡片是现在需要处理的位置；选对后会自动写入并进入下一项。
             </p>
@@ -3792,7 +3843,7 @@ function Finale({
                   </>
                 ) : (
                   <div className="chain-complete">
-                    <span>CHAIN VERIFIED / 07 OF 07</span>
+                    <span>CHAIN VERIFIED / 03 OF 03</span>
                     <h3>完整事实链已经建立。</h3>
                     <p>
                       唐肃的行为、陈渡的责任和被删除的陈默都被保留。你不需要再勾选或背诵结论。
@@ -4291,7 +4342,7 @@ export function AudioArchiveGame() {
         currentChapter: Math.max(current.currentChapter, viewChapter + 1),
       };
     });
-    setStatus(`事实已写入：${chapter.fact}`);
+    setStatus(`修复成果已写入：${chapter.artifact}`);
   };
 
   const requestHint = () => {
@@ -4420,7 +4471,7 @@ export function AudioArchiveGame() {
       </header>
 
       <div className="workstation">
-        <nav className="chapter-switcher" aria-label="七个工程文件">
+        <nav className="chapter-switcher" aria-label="事故母带的七个连续修复阶段">
           <div className="chapter-switcher-label">
             <span>修复记录</span>
             <b>{save.completed.length}/7 已确认</b>
@@ -4454,8 +4505,8 @@ export function AudioArchiveGame() {
                       {locked
                         ? "未解锁"
                         : complete
-                          ? "已确认"
-                          : "正在修复"}
+                          ? "成果已写入"
+                          : "正在处理母带"}
                     </small>
                   </div>
                   <i />
