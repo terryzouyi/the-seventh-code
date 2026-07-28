@@ -62,7 +62,7 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   }
 
   assert.match(component, /localStorage/);
-  assert.match(component, /the-seventh-code-save-v2/);
+  assert.match(component, /the-seventh-code-save-v3/);
   assert.match(component, /AudioContext/);
   assert.doesNotMatch(component, /speechSynthesis|SpeechSynthesisUtterance/);
   assert.match(component, /VOICE_PROFILES/);
@@ -75,8 +75,9 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.doesNotMatch(component, /new Audio\(/);
   assert.match(component, /master\.gain\.value = 0\.46/);
   assert.match(component, /danger \? 0\.72 : 0\.82/);
-  assert.match(component, /timbre: "hum", gain: 1\.8/);
-  assert.match(component, /timbre: "piano", gain: 1\.6/);
+  assert.match(component, /timbre: "hum", missingLast: true, gain: 1\.8/);
+  assert.match(component, /timbre: "piano"/);
+  assert.match(component, /correctedLast: true/);
   assert.match(component, /gain: 1\.9/);
   assert.match(component, /浏览器未允许播放。请再次点击当前样本重试/);
   assert.match(component, /onPlay: \(option\?: string\) => Promise<boolean>/);
@@ -96,7 +97,7 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /声纹字幕/);
   assert.match(component, /第一次叫出你的名字/);
   assert.match(component, /小默，你又把最后一个音唱低了/);
-  assert.match(component, /七次修复已经完成。现在只综合三项责任结论/);
+  assert.match(component, /七条贯穿线索已经闭合。回答谁唱过、谁删过、谁仍在删除/);
   assert.match(component, /当前只处理第/);
   assert.match(component, /证据来源/);
   assert.match(component, /因果链已完成，进入发布决定/);
@@ -120,9 +121,11 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   for (const audibleChoice of [
     "take-a",
     "take-b",
-    "memory",
-    "accident",
+    "signature:",
+    "room:",
+    "location:",
     "raw:",
+    "erasure:",
     "compare:",
     "sample:",
     "time:",
@@ -131,21 +134,22 @@ test("contains seven playable chapters, accessible clues, and local progress", a
     "phase:on",
     "phase:off",
     "fragment:",
+    "remote:fingerprint",
+    "listener:master-key",
     "note:",
   ]) {
     assert.match(component, new RegExp(audibleChoice.replace(":", "\\:")));
   }
-  assert.match(component, /六次敲击 \+ 一个低音回应/);
-  assert.match(component, /六次敲击 \+ 一次吸气 \+ 空拍/);
-  assert.match(component, /有人在等待约定的第七码回应/);
-  assert.match(component, /呼吸与机械滴答/);
-  assert.match(component, /原始残句 A/);
-  assert.match(component, /原始残句 B/);
-  assert.match(component, /唐肃拒绝开门，陈渡随后反驳/);
+  assert.match(component, /先吸气 · 晚 0\.7 秒 · 尾音向下/);
+  assert.match(component, /走廊话筒/);
+  assert.match(component, /陈默在 B 棚外回答过/);
+  assert.match(component, /三道定向剪口/);
+  assert.match(component, /原轨补回 \/ 被删窗口/);
+  assert.match(component, /系统性删除孩子存在过的痕迹/);
   assert.match(component, /仍能听见双重起音/);
   assert.match(component, /发行版尾部 \/ 六次打击/);
   assert.match(component, /第六下尾声/);
-  assert.match(component, /规律机械点击第一次消失/);
+  assert.match(component, /继电器开始消失的时间/);
   assert.match(component, /听写残句/);
   assert.doesNotMatch(
     component,
@@ -187,14 +191,21 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(component, /锁门命令/);
   assert.match(component, /断电要求/);
   assert.match(component, /导出阻止/);
-  assert.match(component, /缺席回应/);
+  assert.match(component, /走廊回应/);
   assert.doesNotMatch(component, /K4 → M1 → R7 → B2 → Q5 → D8 → H3/);
   assert.match(component, /装入上章成果/);
   assert.match(component, /上章成果/);
   assert.match(component, /本章将写出/);
-  assert.match(component, /七拍基准：前六拍呼叫，第七拍回应/);
-  assert.match(component, /第七码空窗：六次敲击后留下吸气，没有回应/);
-  assert.match(component, /六分钟残句：开门命令 → 导出拒绝 → 她还在里面/);
+  assert.match(component, /线索 1\/7 · 声纹锚/);
+  assert.match(component, /线索 2\/7 · 方位钉/);
+  assert.match(component, /线索 3\/7 · 时间钉/);
+  assert.match(component, /线索 4\/7 · 删除规则/);
+  assert.match(component, /线索 5\/7 · 母带持有者/);
+  assert.match(component, /线索 6\/7 · 双重责任/);
+  assert.match(component, /线索 7\/7 · 当前威胁/);
+  assert.match(component, /贯穿线索/);
+  assert.match(component, /本章异常/);
+  assert.match(component, /TS_MASTER/);
   assert.match(component, /22:49/);
   assert.match(component, /23:11/);
   assert.doesNotMatch(component, /voiceTexture/);
@@ -233,6 +244,8 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   assert.match(css, /\.chain-evidence/);
   assert.match(css, /\.chain-options/);
   assert.match(css, /\.chain-transfer/);
+  assert.match(css, /\.red-thread/);
+  assert.match(css, /\.listener-proof/);
   assert.match(css, /\.ending-log-sequence/);
   assert.match(css, /\.ending-anomaly/);
   assert.match(css, /\.audio-error/);
@@ -244,6 +257,9 @@ test("contains seven playable chapters, accessible clues, and local progress", a
   await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));
   await access(
     new URL("../public/audio/voices/father-note.mp3", import.meta.url),
+  );
+  await access(
+    new URL("../public/audio/voices/chen-erased-child.mp3", import.meta.url),
   );
   await access(
     new URL("../public/audio/voices/ending-complete.mp3", import.meta.url),

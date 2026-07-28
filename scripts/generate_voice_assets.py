@@ -42,7 +42,11 @@ STYLES = {
 
 
 CLIPS = [
-    ("father-note", "chen", "不要先相信人声。人声，最容易被剪。"),
+    (
+        "father-note",
+        "chen",
+        "十四年前，乔岚在门后敲了六下。你一直说自己没有回答。我把事故母带拆成七层，因为完整的一份还会被同一把密钥删掉。不要先相信记忆。先找回那个被我们一起拿走的第七码。",
+    ),
     ("listener-01", "listener", "你不记得这个音。为什么还要把它放回去？"),
     ("listener-02", "listener", "房间会留下回声。记忆不会。"),
     ("listener-03", "listener", "那个孩子，没有登记。"),
@@ -71,6 +75,11 @@ CLIPS = [
     ("listener-clean-story", "listener", "唐肃锁住了门。其他内容，与事故无关。"),
     ("chen-forty-minutes", "chen", "唐老师说，只关四十分钟。"),
     ("chen-bypass", "chen", "我知道流程不允许……我还是按了。"),
+    (
+        "chen-erased-child",
+        "chen",
+        "我把小默那一轨删了。不是为了唐肃……是因为他当时也在现场。",
+    ),
     ("tang-lock-studio", "tang", "锁上 B 棚。她拿不到母带，就会签。"),
     ("chen-cut-power", "chen", "机架冒烟了！断总闸！"),
     ("tang-do-not-cut", "tang", "文件没写完。谁都别动电源。"),

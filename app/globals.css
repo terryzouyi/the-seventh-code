@@ -4627,6 +4627,70 @@ button:disabled {
   opacity: 0.78;
 }
 
+.red-thread,
+.listener-proof {
+  display: grid;
+  grid-template-columns: 1fr minmax(240px, 0.72fr);
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(173, 58, 52, 0.68);
+  background:
+    linear-gradient(100deg, rgba(173, 58, 52, 0.16), transparent 58%),
+    #140f10;
+}
+
+.red-thread > div,
+.red-thread > p,
+.listener-proof > div {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+}
+
+.red-thread span,
+.red-thread b,
+.listener-proof span,
+.listener-proof small {
+  color: #b9847d;
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.red-thread strong,
+.listener-proof strong {
+  color: #ffd0c9;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.red-thread p {
+  padding-left: 12px;
+  border-left: 1px solid rgba(222, 86, 72, 0.42);
+  color: #e8b6ae;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.listener-proof {
+  align-items: stretch;
+  margin-top: 4px;
+}
+
+.listener-proof button {
+  min-height: 48px;
+  border: 1px solid var(--danger);
+  background: rgba(173, 58, 52, 0.12);
+  color: #ffd0c9;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+.listener-proof button:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
 .review-artifact {
   display: grid;
   gap: 5px;
@@ -4644,6 +4708,27 @@ button:disabled {
 
 .review-artifact strong {
   color: #ffe0ad;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.review-thread {
+  display: grid;
+  gap: 5px;
+  padding: 11px 13px;
+  border: 1px solid rgba(173, 58, 52, 0.58);
+  background: rgba(173, 58, 52, 0.08);
+}
+
+.review-thread span,
+.review-thread small {
+  color: #b9847d;
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.review-thread strong {
+  color: #ffd0c9;
   font-size: 11px;
   font-weight: 500;
 }
@@ -6832,6 +6917,18 @@ body {
   .chain-transfer > i {
     align-self: center;
     transform: rotate(90deg);
+  }
+
+  .red-thread,
+  .listener-proof {
+    grid-template-columns: 1fr;
+  }
+
+  .red-thread p {
+    padding-top: 10px;
+    padding-left: 0;
+    border-top: 1px solid rgba(222, 86, 72, 0.32);
+    border-left: 0;
   }
 
   .audio-scene-compare,
