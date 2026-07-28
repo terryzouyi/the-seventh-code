@@ -975,6 +975,28 @@ button:disabled {
   gap: 8px;
 }
 
+.guided-primary-action > button {
+  width: 100%;
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  background: #0b1213;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.guided-primary-action > button span,
+.guided-primary-action > button small {
+  color: var(--faint);
+  font-family: var(--mono);
+}
+
+.guided-primary-action > button strong {
+  line-height: 1.65;
+}
+
 .is-next-action {
   border-color: var(--amber) !important;
   box-shadow:
@@ -2428,11 +2450,22 @@ button:disabled {
 }
 
 .final-note-grid i {
-  width: 18%;
+  width: 8%;
   min-height: 9px;
   display: block;
   background: var(--green);
   opacity: 0.66;
+}
+
+.final-note-grid i.is-response {
+  background: var(--amber);
+  opacity: 0.96;
+}
+
+.final-note-grid i.is-missing {
+  height: 8% !important;
+  background: var(--danger);
+  opacity: 0.52;
 }
 
 .final-note-grid span {
